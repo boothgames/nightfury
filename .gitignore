@@ -42,3 +42,6 @@ bin/
 ### OS X ###
 #
 .DS_Store
+
+## nightfury related
+*.db

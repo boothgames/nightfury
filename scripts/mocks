@@ -3,3 +3,6 @@
 set -ex
 
 rm -rf cmd/internal/mocks
+
+mkdir -p pkg/internal/mocks/db
+mockgen -destination pkg/internal/mocks/db/db.go -package mocks -source pkg/db/db.go

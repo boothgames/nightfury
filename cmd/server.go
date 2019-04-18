@@ -21,7 +21,7 @@ var serverCmd = &cobra.Command{
 	Short: "Start nightfury server and broadcast its information using mdns",
 	Run: func(cmd *cobra.Command, args []string) {
 		router := gin.Default()
-		err := db.Open(dbPath)
+		err := db.Initialize(dbPath)
 		cli.DieIf(err)
 
 		cli.DieIf(err)

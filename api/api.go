@@ -29,7 +29,7 @@ func Bind(engine *gin.Engine) {
 		}
 	})
 	engine.GET("clients/:id/games/:name/ws", func(c *gin.Context) {
-		gameName := c.Param("gameName")
+		gameName := c.Param("name")
 		err := gameEngine.HandleRequestWithKeys(c.Writer, c.Request, map[string]interface{}{"name": gameName})
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
