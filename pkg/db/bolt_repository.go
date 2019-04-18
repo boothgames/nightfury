@@ -61,3 +61,25 @@ func (b BoltRepository) Fetch(bucketName string, name string, model Model) error
 
 	})
 }
+
+// FetchAll returns all the models available in the bucketName and error if any
+func (b BoltRepository) FetchAll(bucketName string, modelFn func([]byte) (Model, error)) (interface{}, error) {
+	result := map[string]interface{}{}
+	err := b.db.View(func(tx *bbolt.Tx) error {
+		bName := []byte(bucketName)
+		bucket := tx.Bucket(bName)
+		if bucket == nil {
+			return nil
+		}
+
+		err := bucket.ForEach(func(key, value []byte) error {
+			model, err := modelFn(value)
+			if err == nil {
+				result[string(key)] = model
+			}
+			return err
+		})
+		return err
+	})
+	return result, err
+}

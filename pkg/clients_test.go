@@ -1,11 +1,13 @@
 package pkg_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/jskswamy/nightfury/pkg"
+	"gitlab.com/jskswamy/nightfury/pkg/db"
 	"gitlab.com/jskswamy/nightfury/pkg/internal/mocks/db"
 	"testing"
 )
@@ -149,5 +151,31 @@ func TestNewClientFromRepoWithName(t *testing.T) {
 			assert.Equal(t, "unable to fetch", err.Error())
 		}
 		assert.Equal(t, pkg.Client{}, actual)
+	})
+}
+
+func TestNewClientsFromRepo(t *testing.T) {
+	t.Run("should be able to get all the clients", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		expected := pkg.Clients{"example": {Name: "example", Available: true, GameStatuses: pkg.GameStatuses{}}}
+		repository := mocks.NewMockRepository(ctrl)
+		repository.EXPECT().FetchAll("clients", gomock.Any()).DoAndReturn(
+			func(bucketName string, modelFn func(data []byte) (db.Model, error)) (interface{}, error) {
+				data, _ := json.Marshal(pkg.Client{Name: "example", Available: true, GameStatuses: pkg.GameStatuses{}})
+				model, err := modelFn(data)
+				if err != nil {
+					return nil, err
+				}
+				return pkg.Clients{model.ID(): model.(pkg.Client)}, nil
+			})
+
+		clients, err := pkg.NewClientsFromRepo(repository)
+
+		assert.NoError(t, err)
+		if !cmp.Equal(expected, clients) {
+			assert.Fail(t, cmp.Diff(pkg.Client{}, clients))
+		}
 	})
 }

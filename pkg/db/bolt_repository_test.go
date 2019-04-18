@@ -1,7 +1,7 @@
 package db_test
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
@@ -11,16 +11,16 @@ import (
 	"testing"
 )
 
-type TestModel string
+type TestModel struct{ Name string }
 
 func (m TestModel) ID() string {
-	return fmt.Sprintf("%v", m)
+	return m.Name
 }
 
 func TestBoltRepositorySave(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "nightfury")
 	dbPath := path.Join(dir, "db")
-	model := TestModel("should be persisted")
+	model := TestModel{Name: "should be persisted"}
 	repo, _ := db.NewBoltRepository(dbPath)
 
 	defer func() {
@@ -37,7 +37,7 @@ func TestBoltRepositoryFetch(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "nightfury")
 	dbPath := path.Join(dir, "db")
 	repo, _ := db.NewBoltRepository(dbPath)
-	model := TestModel("should be persisted")
+	model := TestModel{Name: "should be persisted"}
 
 	defer func() {
 		_ = repo.(db.BoltRepository).Close()
@@ -53,5 +53,37 @@ func TestBoltRepositoryFetch(t *testing.T) {
 
 	if !cmp.Equal(model, actual) {
 		assert.Fail(t, cmp.Diff(model, actual))
+	}
+}
+
+func TestBoltRepositoryFetchAll(t *testing.T) {
+	dir, _ := ioutil.TempDir("", "nightfury")
+	dbPath := path.Join(dir, "db")
+	repo, _ := db.NewBoltRepository(dbPath)
+	modelOne := TestModel{Name: "one"}
+	modelTwo := TestModel{Name: "two"}
+	modelThree := TestModel{Name: "three"}
+
+	defer func() {
+		_ = repo.(db.BoltRepository).Close()
+		_ = os.RemoveAll(dir)
+	}()
+
+	_ = repo.Save("test", modelOne)
+	_ = repo.Save("test", modelTwo)
+	_ = repo.Save("test", modelThree)
+
+	expected := map[string]interface{}{"one": modelOne, "two": modelTwo, "three": modelThree}
+
+	actual, err := repo.FetchAll("test", func(bytes []byte) (db.Model, error) {
+		model := TestModel{}
+		err := json.Unmarshal(bytes, &model)
+		return model, err
+	})
+
+	assert.NoError(t, err)
+
+	if !cmp.Equal(expected, actual) {
+		assert.Fail(t, cmp.Diff(expected, actual))
 	}
 }

@@ -12,6 +12,7 @@ type Model interface {
 type Repository interface {
 	Save(bucketName string, model Model) error
 	Fetch(bucketName string, name string, model Model) error
+	FetchAll(bucketName string, modelFn func(data []byte) (Model, error)) (interface{}, error)
 }
 
 // Initialize initializes the global repository

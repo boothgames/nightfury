@@ -97,3 +97,18 @@ func (mr *MockRepositoryMockRecorder) Fetch(bucketName, name, model interface{})
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fetch", reflect.TypeOf((*MockRepository)(nil).Fetch), bucketName, name, model)
 }
+
+// FetchAll mocks base method
+func (m *MockRepository) FetchAll(bucketName string, modelFn func([]byte) (db.Model, error)) (interface{}, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchAll", bucketName, modelFn)
+	ret0, _ := ret[0].(interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FetchAll indicates an expected call of FetchAll
+func (mr *MockRepositoryMockRecorder) FetchAll(bucketName, modelFn interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchAll", reflect.TypeOf((*MockRepository)(nil).FetchAll), bucketName, modelFn)
+}

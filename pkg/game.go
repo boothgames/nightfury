@@ -11,7 +11,7 @@ type Game struct {
 	Type        string
 }
 
-// NewClientFromRepoWithName return all the client from db
+// NewGameFromRepoWithName return all the client from db
 func NewGameFromRepoWithName(repo db.Repository, name string) (Game, error) {
 	game := Game{}
 	err := repo.Fetch(gamesBucketName, name, &game)
