@@ -7,15 +7,12 @@ type Status int
 
 // String returns the string representation of status
 func (status Status) String() string {
-	return [...]string{"NotAvailable", "Ready", "InProgress", "Failed", "Completed"}[status]
+	return [...]string{"Ready", "InProgress", "Failed", "Completed"}[status]
 }
 
 const (
-	// NotAvailable represents game not available status
-	NotAvailable Status = iota
-
 	// Ready represents game is available to play
-	Ready
+	Ready Status = iota
 
 	// InProgress represents game is in progress
 	InProgress

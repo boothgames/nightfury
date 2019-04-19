@@ -35,12 +35,6 @@ func TestGameStatusFailed(t *testing.T) {
 			errMsg:         "cannot fail from a Failed game",
 		},
 		{
-			name:           "should not fail a not available game",
-			status:         NotAvailable,
-			expectedStatus: NotAvailable,
-			isError:        true,
-			errMsg:         "cannot fail from a NotAvailable game",
-		}, {
 			name:           "should not fail a completed game",
 			status:         Completed,
 			expectedStatus: Completed,
@@ -88,12 +82,6 @@ func TestGameStatusCompleted(t *testing.T) {
 			errMsg:         "cannot complete from a Failed game",
 		},
 		{
-			name:           "should not complete a not available game",
-			status:         NotAvailable,
-			expectedStatus: NotAvailable,
-			isError:        true,
-			errMsg:         "cannot complete from a NotAvailable game",
-		}, {
 			name:           "should not complete a completed game",
 			status:         Completed,
 			expectedStatus: Completed,
@@ -139,12 +127,6 @@ func TestGameStatusInProgress(t *testing.T) {
 			errMsg:         "cannot progress from a Failed game",
 		},
 		{
-			name:           "should not progress a not available game",
-			status:         NotAvailable,
-			expectedStatus: NotAvailable,
-			isError:        true,
-			errMsg:         "cannot progress from a NotAvailable game",
-		}, {
 			name:           "should not progress a completed game",
 			status:         Completed,
 			expectedStatus: Completed,
