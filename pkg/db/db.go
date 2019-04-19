@@ -1,6 +1,6 @@
 package db
 
-var boltRepository BoltRepository
+var repository Repository
 
 // Model which can persisted in the repository
 type Model interface {
@@ -14,24 +14,25 @@ type Repository interface {
 	Delete(bucketName string, model Model) error
 	Fetch(bucketName string, name string, model Model) (bool, error)
 	FetchAll(bucketName string, modelFn func(data []byte) (Model, error)) (interface{}, error)
+	Close() error
 }
 
 // Initialize initializes the global repository
 func Initialize(path string) error {
-	repository, err := NewBoltRepository(path)
+	repo, err := NewBoltRepository(path)
 	if err != nil {
 		return err
 	}
-	boltRepository = repository.(BoltRepository)
+	repository = repo.(BoltRepository)
 	return nil
 }
 
 // Close the default repository
 func Close() error {
-	return boltRepository.Close()
+	return repository.Close()
 }
 
 // DefaultRepository returns the global repository
 func DefaultRepository() Repository {
-	return boltRepository
+	return repository
 }
