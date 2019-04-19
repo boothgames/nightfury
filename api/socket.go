@@ -11,17 +11,28 @@ import (
 var gameEngine = melody.New()
 var clientEngine = melody.New()
 
+const (
+	socketClientID = "id"
+	socketGameID   = "name"
+)
+
 func handleClients(c *gin.Context) {
-	clientID := c.Param("id")
-	err := clientEngine.HandleRequestWithKeys(c.Writer, c.Request, map[string]interface{}{"id": clientID})
+	id := c.Param("id")
+	err := clientEngine.HandleRequestWithKeys(c.Writer, c.Request, map[string]interface{}{
+		socketClientID: id,
+	})
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 }
 
 func handleGames(c *gin.Context) {
+	clientID := c.Param("id")
 	gameName := c.Param("name")
-	err := gameEngine.HandleRequestWithKeys(c.Writer, c.Request, map[string]interface{}{"name": gameName})
+	err := gameEngine.HandleRequestWithKeys(c.Writer, c.Request, map[string]interface{}{
+		socketGameID:   gameName,
+		socketClientID: clientID,
+	})
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
@@ -31,21 +42,21 @@ func bindSocket(engine *gin.Engine) {
 	engine.GET("clients/:id/ws", handleClients)
 	engine.GET("clients/:id/games/:name/ws", handleGames)
 
-	gameEngine.HandleConnect(func(s *melody.Session) {
-		_ = s.Write([]byte("welcome game"))
-	})
+	clientEngine.HandleConnect(clientConnected)
+	clientEngine.HandleDisconnect(clientDisconnected)
 
-	clientEngine.HandleConnect(func(s *melody.Session) {
-		_ = s.Write([]byte("welcome client"))
-	})
+	gameEngine.HandleConnect(gameConnected)
+	gameEngine.HandleDisconnect(gameDisconnected)
 
 	gameEngine.HandleMessage(func(session *melody.Session, msg []byte) {
 		_ = gameEngine.BroadcastOthers([]byte("broadcast"), session)
 	})
 
 	gameEngine.HandleMessage(func(session *melody.Session, bytes []byte) {
-		message := fmt.Sprintf("%s says %s", gameName(session), string(bytes))
-		_ = gameEngine.BroadcastOthers([]byte(message), session)
-		log.Info(message)
+		if source, ok := gameName(session); ok {
+			message := fmt.Sprintf("%s says %s", source, string(bytes))
+			_ = gameEngine.BroadcastOthers([]byte(message), session)
+			log.Info(message)
+		}
 	})
 }

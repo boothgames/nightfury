@@ -65,8 +65,8 @@ func (c Client) Add(game Game) {
 }
 
 // Remove removes the game from the client
-func (c Client) Remove(gameName string) {
-	delete(c.GameStatuses, gameName)
+func (c Client) Remove(game Game) {
+	delete(c.GameStatuses, game.Name)
 }
 
 // Connected marks the client as available

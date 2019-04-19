@@ -143,12 +143,9 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:53e8c5c79716437e601696140e8b1801aae4204f4ec54a504333702a49572c4f"
+  digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
   name = "github.com/magiconair/properties"
-  packages = [
-    ".",
-    "assert",
-  ]
+  packages = ["."]
   pruneopts = "UT"
   revision = "c2353362d570a7bfa228149c62842019201cfb71"
   version = "v1.8.0"
@@ -359,7 +356,6 @@
     "github.com/golang/mock/gomock",
     "github.com/google/go-cmp/cmp",
     "github.com/jskswamy/herman/cmd/cli",
-    "github.com/magiconair/properties/assert",
     "github.com/mitchellh/go-homedir",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",

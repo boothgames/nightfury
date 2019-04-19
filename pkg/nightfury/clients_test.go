@@ -66,7 +66,7 @@ func TestClientRemove(t *testing.T) {
 			GameStatuses: map[string]nightfury.GameStatus{},
 		}
 
-		client.Remove("tic-tac-toe")
+		client.Remove(nightfury.Game{Name: "tic-tac-toe"})
 
 		if !cmp.Equal(expected, client) {
 			assert.Fail(t, cmp.Diff(expected, client))
