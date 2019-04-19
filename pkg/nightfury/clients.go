@@ -81,6 +81,25 @@ func (c Client) Disconnected() Client {
 	return c
 }
 
+// Status represents Client status based on game status
+func (c Client) Status() Status {
+	statusCount := map[Status]int{}
+	for _, gameStatus := range c.GameStatuses {
+		statusCount[gameStatus.Status]++
+	}
+	gamesCount := len(c.GameStatuses)
+	if statusCount[Ready] == gamesCount {
+		return Ready
+	}
+	if statusCount[Completed] == gamesCount {
+		return Completed
+	}
+	if statusCount[Failed] >= 1 {
+		return Failed
+	}
+	return InProgress
+}
+
 // Save saves the client information to db
 func (c Client) Save(repo db.Repository) error {
 	return repo.Save(clientsBucketName, c)

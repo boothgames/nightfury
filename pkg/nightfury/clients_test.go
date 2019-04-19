@@ -209,3 +209,110 @@ func TestNewClientsFromRepo(t *testing.T) {
 		}
 	})
 }
+
+func TestClientStatus(t *testing.T) {
+	type StatusScenario struct {
+		name   string
+		client nightfury.Client
+		status nightfury.Status
+	}
+
+	scenarios := []StatusScenario{
+		{
+			name: "should return Ready as status",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Ready},
+					"ludo":             {Status: nightfury.Ready},
+					"snake-and-ladder": {Status: nightfury.Ready},
+				},
+			},
+			status: nightfury.Ready,
+		},
+		{
+			name: "should return Completed as status",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Completed},
+					"ludo":             {Status: nightfury.Completed},
+					"snake-and-ladder": {Status: nightfury.Completed},
+				},
+			},
+			status: nightfury.Completed,
+		},
+		{
+			name: "should return Failed as status when first game fails",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Failed},
+					"ludo":             {Status: nightfury.Ready},
+					"snake-and-ladder": {Status: nightfury.Ready},
+				},
+			},
+			status: nightfury.Failed,
+		},
+		{
+			name: "should return Failed as status when second game fails",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Completed},
+					"ludo":             {Status: nightfury.Failed},
+					"snake-and-ladder": {Status: nightfury.Ready},
+				},
+			},
+			status: nightfury.Failed,
+		},
+		{
+			name: "should return Failed as status when third game fails",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Completed},
+					"ludo":             {Status: nightfury.Failed},
+					"snake-and-ladder": {Status: nightfury.Ready},
+				},
+			},
+			status: nightfury.Failed,
+		},
+		{
+			name: "should return InProgress as status when other games are ready",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.InProgress},
+					"ludo":             {Status: nightfury.Ready},
+					"snake-and-ladder": {Status: nightfury.Ready},
+				},
+			},
+			status: nightfury.InProgress,
+		},
+		{
+			name: "should return InProgress as status when other games are ready/completed",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Completed},
+					"ludo":             {Status: nightfury.InProgress},
+					"snake-and-ladder": {Status: nightfury.Ready},
+				},
+			},
+			status: nightfury.InProgress,
+		},
+		{
+			name: "should return InProgress as status when other games are completed",
+			client: nightfury.Client{
+				GameStatuses: nightfury.GameStatuses{
+					"tic-tac-toe":      {Status: nightfury.Completed},
+					"ludo":             {Status: nightfury.Completed},
+					"snake-and-ladder": {Status: nightfury.InProgress},
+				},
+			},
+			status: nightfury.InProgress,
+		},
+	}
+
+	for _, scenario := range scenarios {
+		t.Run(scenario.name, func(t *testing.T) {
+			actualStatus := scenario.client.Status()
+
+			assert.Equal(t, scenario.status, actualStatus)
+		})
+	}
+}
