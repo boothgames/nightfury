@@ -1,6 +1,9 @@
 package nightfury
 
-import "fmt"
+import (
+	"fmt"
+	"gitlab.com/jskswamy/nightfury/pkg/db"
+)
 
 // Status represents different game status
 type Status int
@@ -59,3 +62,14 @@ func (g GameStatus) InProgress() (GameStatus, error) {
 
 // GameStatuses represents the collection game current status
 type GameStatuses map[string]GameStatus
+
+// ReadyGame returns ready game if any else returns error
+func (statuses GameStatuses) ReadyGame() (Game, error) {
+	repository := db.DefaultRepository()
+	for name, game := range statuses {
+		if game.Status == Ready {
+			return NewGameFromRepoWithName(repository, name)
+		}
+	}
+	return Game{}, fmt.Errorf("cannot find any ready game")
+}

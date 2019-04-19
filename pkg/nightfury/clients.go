@@ -109,3 +109,19 @@ func (c Client) Save(repo db.Repository) error {
 func (c Client) Delete(repo db.Repository) error {
 	return repo.Delete(clientsBucketName, c)
 }
+
+// Start starts the first ready game, returns error if game is already started
+func (c Client) Start() (Game, error) {
+	if c.Status() == Ready {
+		return c.GameStatuses.ReadyGame()
+	}
+	return Game{}, fmt.Errorf("game already started")
+}
+
+// Start starts the first ready game, returns error if game is already started
+func (c Client) Next() (Game, error) {
+	if c.Status() == InProgress {
+		return c.GameStatuses.ReadyGame()
+	}
+	return Game{}, fmt.Errorf("game already started")
+}

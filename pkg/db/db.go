@@ -36,3 +36,12 @@ func Close() error {
 func DefaultRepository() Repository {
 	return repository
 }
+
+// ReplaceDefaultRepositoryWith replace the default repository
+func ReplaceDefaultRepositoryWith(repo Repository) func() {
+	originalRepo := repository
+	repository = repo
+	return func() {
+		repository = originalRepo
+	}
+}

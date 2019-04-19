@@ -316,3 +316,58 @@ func TestClientStatus(t *testing.T) {
 		})
 	}
 }
+
+func TestClientStart(t *testing.T) {
+	t.Run("should start client", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Ready},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		mockRepository.EXPECT().Fetch("games", gomock.Any(), gomock.Any()).DoAndReturn(
+			func(bucketName string, name string, model db.Model) (bool, error) {
+				if name == "tic-tac-toe" || name == "ludo" || name == "snake-and-ladder" {
+					return true, nil
+				}
+				return false, nil
+			})
+
+		_, err := client.Start()
+		assert.NoError(t, err)
+	})
+
+	t.Run("should not start client", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.InProgress},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		_, err := client.Start()
+		assert.Error(t, err)
+		assert.Equal(t, "game already started", err.Error())
+	})
+}
