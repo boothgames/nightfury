@@ -1,5 +1,7 @@
 package db
 
+import "go.etcd.io/bbolt"
+
 var boltRepository BoltRepository
 
 // Model which can persisted in the repository
@@ -23,6 +25,26 @@ func Initialize(path string) error {
 		return err
 	}
 	boltRepository = repository.(BoltRepository)
+	return nil
+}
+
+// DeleteBucket will delete the bucket from the db
+func DeleteBucket(bucketName string) error {
+	err := boltRepository.db.Update(func(tx *bbolt.Tx) error {
+		bName := []byte(bucketName)
+		bucket := tx.Bucket(bName)
+		if bucket != nil {
+			err := tx.DeleteBucket(bName)
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
