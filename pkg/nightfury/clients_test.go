@@ -1,4 +1,4 @@
-package pkg_test
+package nightfury_test
 
 import (
 	"encoding/json"
@@ -6,22 +6,22 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/jskswamy/nightfury/pkg"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
 	"gitlab.com/jskswamy/nightfury/pkg/internal/mocks/db"
+	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"testing"
 )
 
 func TestClientAdd(t *testing.T) {
 	t.Run("should be able to add game", func(t *testing.T) {
-		client := pkg.NewClient("test", false)
-		game := pkg.Game{
+		client := nightfury.NewClient("test", false)
+		game := nightfury.Game{
 			Name:        "tic-tac-toe",
 			Instruction: "instruction",
 		}
-		expected := pkg.Client{
+		expected := nightfury.Client{
 			Name:         "test",
-			GameStatuses: map[string]pkg.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: "ready"}},
+			GameStatuses: map[string]nightfury.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: "ready"}},
 		}
 
 		client.Add(game)
@@ -32,18 +32,18 @@ func TestClientAdd(t *testing.T) {
 	})
 
 	t.Run("should replace the existing game", func(t *testing.T) {
-		client := pkg.NewClient(
+		client := nightfury.NewClient(
 			"test",
 			false,
-			pkg.GameStatus{Name: "tic-tac-toe", Status: "started"},
+			nightfury.GameStatus{Name: "tic-tac-toe", Status: "started"},
 		)
-		game := pkg.Game{
+		game := nightfury.Game{
 			Name:        "tic-tac-toe",
 			Instruction: "instruction",
 		}
-		expected := pkg.Client{
+		expected := nightfury.Client{
 			Name:         "test",
-			GameStatuses: map[string]pkg.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: "ready"}},
+			GameStatuses: map[string]nightfury.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: "ready"}},
 		}
 
 		client.Add(game)
@@ -56,14 +56,14 @@ func TestClientAdd(t *testing.T) {
 
 func TestClientRemove(t *testing.T) {
 	t.Run("should be able to remove a game", func(t *testing.T) {
-		client := pkg.NewClient(
+		client := nightfury.NewClient(
 			"test",
 			false,
-			pkg.GameStatus{Name: "tic-tac-toe", Status: "started"},
+			nightfury.GameStatus{Name: "tic-tac-toe", Status: "started"},
 		)
-		expected := pkg.Client{
+		expected := nightfury.Client{
 			Name:         "test",
-			GameStatuses: map[string]pkg.GameStatus{},
+			GameStatuses: map[string]nightfury.GameStatus{},
 		}
 
 		client.Remove("tic-tac-toe")
@@ -76,9 +76,9 @@ func TestClientRemove(t *testing.T) {
 
 func TestClientConnected(t *testing.T) {
 	t.Run("should update the status", func(t *testing.T) {
-		client := pkg.Client{Name: "client"}
+		client := nightfury.Client{Name: "client"}
 		actual := client.Connected()
-		expected := pkg.Client{Name: "client", Available: true}
+		expected := nightfury.Client{Name: "client", Available: true}
 
 		assert.Equal(t, expected, actual)
 	})
@@ -86,9 +86,9 @@ func TestClientConnected(t *testing.T) {
 
 func TestClientDisConnected(t *testing.T) {
 	t.Run("should update the status", func(t *testing.T) {
-		client := pkg.Client{Name: "client", Available: true}
+		client := nightfury.Client{Name: "client", Available: true}
 		actual := client.Disconnected()
-		expected := pkg.Client{Name: "client", Available: false}
+		expected := nightfury.Client{Name: "client", Available: false}
 
 		assert.Equal(t, expected, actual)
 	})
@@ -100,7 +100,7 @@ func TestClientSave(t *testing.T) {
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		client := pkg.Client{Name: "client", Available: true}
+		client := nightfury.Client{Name: "client", Available: true}
 		repository.EXPECT().Save("clients", client)
 
 		err := client.Save(repository)
@@ -113,7 +113,7 @@ func TestClientSave(t *testing.T) {
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		client := pkg.Client{Name: "client", Available: true}
+		client := nightfury.Client{Name: "client", Available: true}
 		repository.EXPECT().Save("clients", client).Return(fmt.Errorf("unable to save"))
 
 		err := client.Save(repository)
@@ -132,7 +132,7 @@ func TestNewClientFromRepoWithName(t *testing.T) {
 		repository := mocks.NewMockRepository(ctrl)
 		repository.EXPECT().Fetch("clients", "one", gomock.Any()).Return(nil)
 
-		actual, err := pkg.NewClientFromRepoWithName(repository, "one")
+		actual, err := nightfury.NewClientFromRepoWithName(repository, "one")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, actual)
@@ -145,12 +145,12 @@ func TestNewClientFromRepoWithName(t *testing.T) {
 		repository := mocks.NewMockRepository(ctrl)
 		repository.EXPECT().Fetch("clients", "one", gomock.Any()).Return(fmt.Errorf("unable to fetch"))
 
-		actual, err := pkg.NewClientFromRepoWithName(repository, "one")
+		actual, err := nightfury.NewClientFromRepoWithName(repository, "one")
 
 		if assert.Error(t, err) {
 			assert.Equal(t, "unable to fetch", err.Error())
 		}
-		assert.Equal(t, pkg.Client{}, actual)
+		assert.Equal(t, nightfury.Client{}, actual)
 	})
 }
 
@@ -159,23 +159,23 @@ func TestNewClientsFromRepo(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		expected := pkg.Clients{"example": {Name: "example", Available: true, GameStatuses: pkg.GameStatuses{}}}
+		expected := nightfury.Clients{"example": {Name: "example", Available: true, GameStatuses: nightfury.GameStatuses{}}}
 		repository := mocks.NewMockRepository(ctrl)
 		repository.EXPECT().FetchAll("clients", gomock.Any()).DoAndReturn(
 			func(bucketName string, modelFn func(data []byte) (db.Model, error)) (interface{}, error) {
-				data, _ := json.Marshal(pkg.Client{Name: "example", Available: true, GameStatuses: pkg.GameStatuses{}})
+				data, _ := json.Marshal(nightfury.Client{Name: "example", Available: true, GameStatuses: nightfury.GameStatuses{}})
 				model, err := modelFn(data)
 				if err != nil {
 					return nil, err
 				}
-				return pkg.Clients{model.ID(): model.(pkg.Client)}, nil
+				return nightfury.Clients{model.ID(): model.(nightfury.Client)}, nil
 			})
 
-		clients, err := pkg.NewClientsFromRepo(repository)
+		clients, err := nightfury.NewClientsFromRepo(repository)
 
 		assert.NoError(t, err)
 		if !cmp.Equal(expected, clients) {
-			assert.Fail(t, cmp.Diff(pkg.Client{}, clients))
+			assert.Fail(t, cmp.Diff(nightfury.Client{}, clients))
 		}
 	})
 }

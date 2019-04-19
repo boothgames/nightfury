@@ -1,4 +1,4 @@
-package pkg_test
+package nightfury_test
 
 import (
 	"encoding/json"
@@ -6,9 +6,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/jskswamy/nightfury/pkg"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
 	mocks "gitlab.com/jskswamy/nightfury/pkg/internal/mocks/db"
+	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"testing"
 )
 
@@ -18,7 +18,7 @@ func TestGameSave(t *testing.T) {
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		game := pkg.Game{Name: "game"}
+		game := nightfury.Game{Name: "game"}
 		repository.EXPECT().Save("games", game)
 
 		err := game.Save(repository)
@@ -31,7 +31,7 @@ func TestGameSave(t *testing.T) {
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		game := pkg.Game{Name: "game"}
+		game := nightfury.Game{Name: "game"}
 		repository.EXPECT().Save("games", game).Return(fmt.Errorf("unable to save"))
 
 		err := game.Save(repository)
@@ -50,7 +50,7 @@ func TestNewGameFromRepoWithName(t *testing.T) {
 		repository := mocks.NewMockRepository(ctrl)
 		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(nil)
 
-		actual, err := pkg.NewGameFromRepoWithName(repository, "one")
+		actual, err := nightfury.NewGameFromRepoWithName(repository, "one")
 
 		assert.NoError(t, err)
 		assert.NotNil(t, actual)
@@ -63,12 +63,12 @@ func TestNewGameFromRepoWithName(t *testing.T) {
 		repository := mocks.NewMockRepository(ctrl)
 		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(fmt.Errorf("unable to fetch"))
 
-		actual, err := pkg.NewGameFromRepoWithName(repository, "one")
+		actual, err := nightfury.NewGameFromRepoWithName(repository, "one")
 
 		if assert.Error(t, err) {
 			assert.Equal(t, "unable to fetch", err.Error())
 		}
-		assert.Equal(t, pkg.Game{}, actual)
+		assert.Equal(t, nightfury.Game{}, actual)
 	})
 }
 
@@ -77,23 +77,23 @@ func TestNewGamesFromRepo(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		expected := pkg.Games{"example": {Name: "example", Instruction: "instruction"}}
+		expected := nightfury.Games{"example": {Name: "example", Instruction: "instruction"}}
 		repository := mocks.NewMockRepository(ctrl)
 		repository.EXPECT().FetchAll("games", gomock.Any()).DoAndReturn(
 			func(bucketName string, modelFn func(data []byte) (db.Model, error)) (interface{}, error) {
-				data, _ := json.Marshal(pkg.Game{Name: "example", Instruction: "instruction"})
+				data, _ := json.Marshal(nightfury.Game{Name: "example", Instruction: "instruction"})
 				model, err := modelFn(data)
 				if err != nil {
 					return nil, err
 				}
-				return pkg.Games{model.ID(): model.(pkg.Game)}, nil
+				return nightfury.Games{model.ID(): model.(nightfury.Game)}, nil
 			})
 
-		games, err := pkg.NewGamesFromRepo(repository)
+		games, err := nightfury.NewGamesFromRepo(repository)
 
 		assert.NoError(t, err)
 		if !cmp.Equal(expected, games) {
-			assert.Fail(t, cmp.Diff(pkg.Game{}, games))
+			assert.Fail(t, cmp.Diff(nightfury.Game{}, games))
 		}
 	})
 }

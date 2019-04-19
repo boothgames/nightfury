@@ -1,4 +1,4 @@
-package pkg
+package nightfury
 
 import (
 	"encoding/json"
