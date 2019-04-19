@@ -21,7 +21,7 @@ func TestClientAdd(t *testing.T) {
 		}
 		expected := nightfury.Client{
 			Name:         "test",
-			GameStatuses: map[string]nightfury.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: "ready"}},
+			GameStatuses: map[string]nightfury.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: nightfury.Ready}},
 		}
 
 		client.Add(game)
@@ -35,7 +35,7 @@ func TestClientAdd(t *testing.T) {
 		client := nightfury.NewClient(
 			"test",
 			false,
-			nightfury.GameStatus{Name: "tic-tac-toe", Status: "started"},
+			nightfury.GameStatus{Name: "tic-tac-toe", Status: nightfury.InProgress},
 		)
 		game := nightfury.Game{
 			Name:        "tic-tac-toe",
@@ -43,7 +43,7 @@ func TestClientAdd(t *testing.T) {
 		}
 		expected := nightfury.Client{
 			Name:         "test",
-			GameStatuses: map[string]nightfury.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: "ready"}},
+			GameStatuses: map[string]nightfury.GameStatus{"tic-tac-toe": {Name: "tic-tac-toe", Status: nightfury.Ready}},
 		}
 
 		client.Add(game)
@@ -59,7 +59,7 @@ func TestClientRemove(t *testing.T) {
 		client := nightfury.NewClient(
 			"test",
 			false,
-			nightfury.GameStatus{Name: "tic-tac-toe", Status: "started"},
+			nightfury.GameStatus{Name: "tic-tac-toe", Status: nightfury.InProgress},
 		)
 		expected := nightfury.Client{
 			Name:         "test",

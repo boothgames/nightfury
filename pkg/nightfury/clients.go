@@ -61,7 +61,7 @@ func (c Client) ID() string {
 
 // Add attaches a game to the client
 func (c Client) Add(game Game) {
-	c.GameStatuses[game.Name] = GameStatus{Name: game.Name, Status: "ready"}
+	c.GameStatuses[game.Name] = GameStatus{Name: game.Name, Status: Ready}
 }
 
 // Remove removes the game from the client

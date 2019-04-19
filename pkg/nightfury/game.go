@@ -54,12 +54,3 @@ func (g Game) Save(repo db.Repository) error {
 func (g Game) Delete(repo db.Repository) error {
 	return repo.Delete(gamesBucketName, g)
 }
-
-// GameStatus represents the game current status
-type GameStatus struct {
-	Name   string
-	Status string
-}
-
-// GameStatuses represents the collection game current status
-type GameStatuses map[string]GameStatus
