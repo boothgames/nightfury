@@ -38,7 +38,7 @@ func TestSecurityIncidentAPI(t *testing.T) {
 		expectedResponse := `{"Title":"title space title","Tag":"tag","Content":"new content","Takeaway":"new-takeaway2"}`
 
 		createBody := `{"title": "title space title", "tag": "tag", "content": "new content", "takeaway": "new-takeaway2"}`
-		response := performRequest(router, "POST", "/v1/security_incidents",
+		response := performRequest(router, "POST", "/v1/security-incidents",
 			bytes.NewBuffer([]byte(createBody)))
 
 		assert.Equal(t, http.StatusCreated, response.Code)
@@ -62,7 +62,7 @@ func TestSecurityIncidentAPI(t *testing.T) {
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
 		expectedResponse := fmt.Sprintf("{\"Title\":\"%s\",\"Tag\":\"tag\",\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}", title)
 
-		response := performRequest(router, "GET", fmt.Sprintf("/v1/security_incidents/%v", titleHyphenated), nil)
+		response := performRequest(router, "GET", fmt.Sprintf("/v1/security-incidents/%v", titleHyphenated), nil)
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
@@ -73,7 +73,7 @@ func TestSecurityIncidentAPI(t *testing.T) {
 		expectedResponse := fmt.Sprintf("{\"Title\":\"%s\",\"Tag\":\"new tag\",\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}", title)
 
 		updateBody := `{"title": "title space title", "tag": "new tag", "content": "new content", "takeaway": "new-takeaway2"}`
-		response := performRequest(router, "PUT", fmt.Sprintf("/v1/security_incidents/%v", titleHyphenated),
+		response := performRequest(router, "PUT", fmt.Sprintf("/v1/security-incidents/%v", titleHyphenated),
 			bytes.NewBuffer([]byte(updateBody)))
 
 		assert.Equal(t, http.StatusOK, response.Code)
@@ -82,7 +82,7 @@ func TestSecurityIncidentAPI(t *testing.T) {
 	t.Run("delete security incident", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
-		response := performRequest(router, "DELETE", fmt.Sprintf("/v1/security_incidents/%v", titleHyphenated), nil)
+		response := performRequest(router, "DELETE", fmt.Sprintf("/v1/security-incidents/%v", titleHyphenated), nil)
 
 		assert.Equal(t, http.StatusOK, response.Code)
 	})
