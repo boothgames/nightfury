@@ -50,9 +50,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 		expectedResponse := fmt.Sprintf("{\"%s\":{\"Title\":\"%s\",\"Tag\":\"tag\",\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}}",
 			titleHyphenated, title)
 
-		createBody := `{"title": "title space title", "tag": "tag", "content": "new content", "takeaway": "new-takeaway2"}`
-		response := performRequest(router, "GET", "/v1/security-incidents",
-			bytes.NewBuffer([]byte(createBody)))
+		response := performRequest(router, "GET", "/v1/security-incidents", nil)
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
