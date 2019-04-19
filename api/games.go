@@ -64,7 +64,7 @@ func updateGame(c *gin.Context) {
 		return
 	}
 	if currentGame.Name != gameToBeUpdated.Name {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("name cannot be different")})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("name cannot be different").Error()})
 		return
 	}
 
