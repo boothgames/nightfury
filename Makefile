@@ -58,7 +58,7 @@ install: ## Install nightfury
 compile-linux: ensure-build-dir ## Compile nightfury for linux
 	GOOS=linux GOARCH=amd64 $(GO_BINARY) build -ldflags $(BUILD_ARGS) -o $(APP_EXECUTABLE) ./main.go
 
-build: build-deps fmt build-common ## Build the application
+build: setup build-deps fmt build-common ## Build the application
 
 build-common: vet lint-all test compile
 
@@ -89,10 +89,7 @@ ifeq ($(RICHGO),)
 	$(GO_BINARY) get -u github.com/kyoh86/richgo
 endif
 
-setup-tf:
-	ln -fs $(PWD)/examples/terraform/* out/.
-
-setup: setup-dep setup-richgo setup-common ensure-build-dir setup-tf ## Setup environment
+setup: setup-dep setup-richgo setup-common ensure-build-dir ## Setup environment
 
 lint-all: lint setup-common
 	$(GOMETA_LINT) run
