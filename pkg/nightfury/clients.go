@@ -118,10 +118,29 @@ func (c Client) Start() (Game, error) {
 	return Game{}, fmt.Errorf("game already started")
 }
 
-// Start starts the first ready game, returns error if game is already started
-func (c Client) Next() (Game, error) {
-	if c.Status() == InProgress {
-		return c.GameStatuses.ReadyGame()
+// HasNext checks if there is any game to play
+func (c Client) HasNext() bool {
+	if c.Status() != Failed && c.GameStatuses.HasReadyGames() {
+		return true
 	}
-	return Game{}, fmt.Errorf("game already started")
+	return false
+}
+
+// Next returns next ready game
+func (c Client) Next() (Game, error) {
+	if c.Status() == Ready {
+		return Game{}, fmt.Errorf("game not yet started")
+	}
+
+	if c.Status() == Completed {
+		return Game{}, fmt.Errorf("game completed")
+	}
+
+	if c.Status() == Failed {
+		return Game{}, fmt.Errorf("game failed")
+	}
+	if c.GameStatuses.IsAnyGameInProgress() {
+		return Game{}, fmt.Errorf("game already in progress")
+	}
+	return c.GameStatuses.ReadyGame()
 }

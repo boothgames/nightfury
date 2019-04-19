@@ -73,3 +73,23 @@ func (statuses GameStatuses) ReadyGame() (Game, error) {
 	}
 	return Game{}, fmt.Errorf("cannot find any ready game")
 }
+
+// IsAnyGameInProgress returns true if any game is in progress
+func (statuses GameStatuses) IsAnyGameInProgress() bool {
+	for _, game := range statuses {
+		if game.Status == InProgress {
+			return true
+		}
+	}
+	return false
+}
+
+// HasReadyGames returns true if any game is in progress
+func (statuses GameStatuses) HasReadyGames() bool {
+	for _, game := range statuses {
+		if game.Status == Ready {
+			return true
+		}
+	}
+	return false
+}

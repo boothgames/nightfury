@@ -371,3 +371,194 @@ func TestClientStart(t *testing.T) {
 		assert.Equal(t, "game already started", err.Error())
 	})
 }
+
+func TestClientNext(t *testing.T) {
+	t.Run("should return the next game", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Completed},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		mockRepository.EXPECT().Fetch("games", gomock.Any(), gomock.Any()).DoAndReturn(
+			func(bucketName string, name string, model db.Model) (bool, error) {
+				if name == "ludo" || name == "snake-and-ladder" {
+					return true, nil
+				}
+				return false, nil
+			})
+
+		_, err := client.Next()
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("should not return the next game if game is not yet started", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Ready},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		_, err := client.Next()
+
+		assert.Error(t, err)
+		assert.Equal(t, "game not yet started", err.Error())
+	})
+
+	t.Run("should not return the next game if game is in progress", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.InProgress},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		_, err := client.Next()
+
+		assert.Error(t, err)
+		assert.Equal(t, "game already in progress", err.Error())
+	})
+
+	t.Run("should not return the next game if game is completed", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Completed},
+				"ludo":             {Status: nightfury.Completed},
+				"snake-and-ladder": {Status: nightfury.Completed},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		_, err := client.Next()
+
+		assert.Error(t, err)
+		assert.Equal(t, "game completed", err.Error())
+	})
+
+	t.Run("should not return the next game if game is failed", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Completed},
+				"ludo":             {Status: nightfury.Failed},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		_, err := client.Next()
+
+		assert.Error(t, err)
+		assert.Equal(t, "game failed", err.Error())
+	})
+}
+
+func TestClientHasNext(t *testing.T) {
+	t.Run("should return the next game", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Completed},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		assert.True(t, client.HasNext())
+	})
+
+	t.Run("should not return the next game if game is not yet started", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Ready},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		assert.True(t, client.HasNext())
+	})
+
+	t.Run("should not return the next game if game is in progress", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.InProgress},
+				"ludo":             {Status: nightfury.Ready},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		assert.True(t, client.HasNext())
+	})
+
+	t.Run("should not return the next game if game is completed", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Completed},
+				"ludo":             {Status: nightfury.Completed},
+				"snake-and-ladder": {Status: nightfury.Completed},
+			},
+		}
+
+		assert.False(t, client.HasNext())
+	})
+
+	t.Run("should not return the next game if game is failed", func(t *testing.T) {
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Status: nightfury.Completed},
+				"ludo":             {Status: nightfury.Failed},
+				"snake-and-ladder": {Status: nightfury.Ready},
+			},
+		}
+
+		assert.False(t, client.HasNext())
+	})
+}
