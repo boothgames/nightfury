@@ -32,5 +32,12 @@ func Bind(engine *gin.Engine) {
 
 		v1.GET("/clients", listClients)
 	}
-	bindSocket(engine)
+
+	wsV1 := engine.Group("/ws/v1")
+	{
+		wsV1.GET("clients/:id", handleClients)
+		wsV1.GET("clients/:id/games/:name", handleGames)
+	}
+
+	bindSocket()
 }

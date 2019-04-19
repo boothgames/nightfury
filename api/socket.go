@@ -38,10 +38,7 @@ func handleGames(c *gin.Context) {
 	}
 }
 
-func bindSocket(engine *gin.Engine) {
-	engine.GET("clients/:id/ws", handleClients)
-	engine.GET("clients/:id/games/:name/ws", handleGames)
-
+func bindSocket() {
 	clientEngine.HandleConnect(clientConnected)
 	clientEngine.HandleDisconnect(clientDisconnected)
 
