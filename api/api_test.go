@@ -1,17 +1,19 @@
-package api
+package api_test
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"gitlab.com/jskswamy/nightfury/api"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
-var buckets = []string{"securityIncidents", "games"}
+var testDBFileName = "test-db.db"
 
 func TestPing(t *testing.T) {
 	router := setupTestContext()
@@ -21,12 +23,8 @@ func TestPing(t *testing.T) {
 }
 
 func teardownTestContext(t *testing.T) {
-	for _, bucket := range buckets {
-		if err := db.DeleteBucket(bucket); err != nil {
-			panic(fmt.Errorf("error %v in deleting bucket %v", err, bucket))
-		}
-	}
 	_ = db.Close()
+	_ = os.RemoveAll(testDBFileName)
 }
 
 func performRequest(r http.Handler, method, path string, body io.Reader) *httptest.ResponseRecorder {
@@ -38,8 +36,9 @@ func performRequest(r http.Handler, method, path string, body io.Reader) *httpte
 
 func setupTestContext() *gin.Engine {
 	router := gin.Default()
-	Bind(router)
-	err := db.Initialize("test-db.db")
+	api.Bind(router)
+
+	err := db.Initialize(testDBFileName)
 	if err != nil {
 		panic(fmt.Errorf("could not initialise test db %v", err))
 	}

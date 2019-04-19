@@ -1,4 +1,4 @@
-package api
+package api_test
 
 import (
 	"bytes"
@@ -21,6 +21,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("get all game incidents", func(t *testing.T) {
 		expectedResponse := "{\"example\":{\"Name\":\"example\",\"Instruction\":\"instruction\",\"Type\":\"manual\"}}"
 
@@ -29,6 +30,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("read game incident", func(t *testing.T) {
 		gameName := "example"
 		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Instruction\":\"instruction\",\"Type\":\"manual\"}", gameName)
@@ -38,6 +40,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("update game incident", func(t *testing.T) {
 		gameName := "example"
 		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\"}", gameName)
@@ -49,6 +52,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("delete game incident", func(t *testing.T) {
 		gameName := "example"
 		response := performRequest(router, "DELETE", fmt.Sprintf("/v1/games/%v", gameName), nil)

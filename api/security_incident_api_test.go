@@ -1,4 +1,4 @@
-package api
+package api_test
 
 import (
 	"bytes"
@@ -22,6 +22,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("get all security incidents", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
@@ -33,6 +34,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("read security incident", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
@@ -43,6 +45,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("update security incident", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
@@ -55,6 +58,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("delete security incident", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
@@ -110,6 +114,7 @@ func TestSecurityIncidentUpdateFailure(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, response.Code)
 		assert.Equal(t, expectedResponse, response.Body.String())
 	})
+
 	t.Run("update security incident should fail if title is changed", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
