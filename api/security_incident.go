@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
 	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
@@ -10,12 +9,12 @@ import (
 
 func listSecurityIncidents(c *gin.Context) {
 	repository := db.DefaultRepository()
-	games, err := nightfury.NewSecurityIncidentsFromRepo(repository)
+	securityIncidents, err := nightfury.NewSecurityIncidentsFromRepo(repository)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, games)
+	c.JSON(http.StatusOK, securityIncidents)
 }
 
 func createSecurityIncident(c *gin.Context) {
@@ -63,8 +62,9 @@ func updateSecurityIncident(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if currentSecurityIncident.Title != securityIncidentToBeUpdated.Title {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("title cannot be different").Error()})
+
+	if err := currentSecurityIncident.DetectChangeInTitle(securityIncidentToBeUpdated); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
