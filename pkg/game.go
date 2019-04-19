@@ -1,6 +1,9 @@
 package pkg
 
-import "gitlab.com/jskswamy/nightfury/pkg/db"
+import (
+	"encoding/json"
+	"gitlab.com/jskswamy/nightfury/pkg/db"
+)
 
 var gamesBucketName = "games"
 
@@ -11,11 +14,23 @@ type Game struct {
 	Type        string
 }
 
+// Games represents collection of games
+type Games map[string]Game
+
 // NewGameFromRepoWithName return all the client from db
 func NewGameFromRepoWithName(repo db.Repository, name string) (Game, error) {
 	game := Game{}
 	err := repo.Fetch(gamesBucketName, name, &game)
 	return game, err
+}
+
+// NewGamesFromRepo returns all the clients from db
+func NewGamesFromRepo(repo db.Repository) (interface{}, error) {
+	return repo.FetchAll(gamesBucketName, func(data []byte) (model db.Model, e error) {
+		client := Game{}
+		err := json.Unmarshal(data, &client)
+		return client, err
+	})
 }
 
 // ID returns the identifiable name for client

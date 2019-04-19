@@ -1,10 +1,13 @@
 package pkg_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/jskswamy/nightfury/pkg"
+	"gitlab.com/jskswamy/nightfury/pkg/db"
 	mocks "gitlab.com/jskswamy/nightfury/pkg/internal/mocks/db"
 	"testing"
 )
@@ -66,5 +69,31 @@ func TestNewGameFromRepoWithName(t *testing.T) {
 			assert.Equal(t, "unable to fetch", err.Error())
 		}
 		assert.Equal(t, pkg.Game{}, actual)
+	})
+}
+
+func TestNewGamesFromRepo(t *testing.T) {
+	t.Run("should be able to get all the games", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		expected := pkg.Games{"example": {Name: "example", Instruction: "instruction"}}
+		repository := mocks.NewMockRepository(ctrl)
+		repository.EXPECT().FetchAll("games", gomock.Any()).DoAndReturn(
+			func(bucketName string, modelFn func(data []byte) (db.Model, error)) (interface{}, error) {
+				data, _ := json.Marshal(pkg.Game{Name: "example", Instruction: "instruction"})
+				model, err := modelFn(data)
+				if err != nil {
+					return nil, err
+				}
+				return pkg.Games{model.ID(): model.(pkg.Game)}, nil
+			})
+
+		games, err := pkg.NewGamesFromRepo(repository)
+
+		assert.NoError(t, err)
+		if !cmp.Equal(expected, games) {
+			assert.Fail(t, cmp.Diff(pkg.Game{}, games))
+		}
 	})
 }
