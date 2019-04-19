@@ -124,13 +124,43 @@ func TestClientSave(t *testing.T) {
 	})
 }
 
+func TestClientDelete(t *testing.T) {
+	t.Run("should be able to save client", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		client := nightfury.Client{Name: "client", Available: true}
+		repository.EXPECT().Delete("clients", client)
+
+		err := client.Delete(repository)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("should return error returned by repository save", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		client := nightfury.Client{Name: "client", Available: true}
+		repository.EXPECT().Delete("clients", client).Return(fmt.Errorf("unable to save"))
+
+		err := client.Delete(repository)
+
+		if assert.Error(t, err) {
+			assert.Equal(t, "unable to save", err.Error())
+		}
+	})
+}
+
 func TestNewClientFromRepoWithName(t *testing.T) {
 	t.Run("should fetch the client from db", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		repository.EXPECT().Fetch("clients", "one", gomock.Any()).Return(nil)
+		repository.EXPECT().Fetch("clients", "one", gomock.Any()).Return(true, nil)
 
 		actual, err := nightfury.NewClientFromRepoWithName(repository, "one")
 
@@ -143,7 +173,7 @@ func TestNewClientFromRepoWithName(t *testing.T) {
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		repository.EXPECT().Fetch("clients", "one", gomock.Any()).Return(fmt.Errorf("unable to fetch"))
+		repository.EXPECT().Fetch("clients", "one", gomock.Any()).Return(false, fmt.Errorf("unable to fetch"))
 
 		actual, err := nightfury.NewClientFromRepoWithName(repository, "one")
 

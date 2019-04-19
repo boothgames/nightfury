@@ -42,13 +42,43 @@ func TestGameSave(t *testing.T) {
 	})
 }
 
+func TestGameDelete(t *testing.T) {
+	t.Run("should be able to save game", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		game := nightfury.Game{Name: "game"}
+		repository.EXPECT().Delete("games", game)
+
+		err := game.Delete(repository)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("should return error returned by repository save", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		game := nightfury.Game{Name: "game"}
+		repository.EXPECT().Delete("games", game).Return(fmt.Errorf("unable to save"))
+
+		err := game.Delete(repository)
+
+		if assert.Error(t, err) {
+			assert.Equal(t, "unable to save", err.Error())
+		}
+	})
+}
+
 func TestNewGameFromRepoWithName(t *testing.T) {
 	t.Run("should fetch the game from db", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(nil)
+		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(true, nil)
 
 		actual, err := nightfury.NewGameFromRepoWithName(repository, "one")
 
@@ -61,7 +91,7 @@ func TestNewGameFromRepoWithName(t *testing.T) {
 		defer ctrl.Finish()
 
 		repository := mocks.NewMockRepository(ctrl)
-		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(fmt.Errorf("unable to fetch"))
+		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(false, fmt.Errorf("unable to fetch"))
 
 		actual, err := nightfury.NewGameFromRepoWithName(repository, "one")
 

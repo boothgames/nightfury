@@ -11,7 +11,8 @@ type Model interface {
 // from database
 type Repository interface {
 	Save(bucketName string, model Model) error
-	Fetch(bucketName string, name string, model Model) error
+	Delete(bucketName string, model Model) error
+	Fetch(bucketName string, name string, model Model) (bool, error)
 	FetchAll(bucketName string, modelFn func(data []byte) (Model, error)) (interface{}, error)
 }
 

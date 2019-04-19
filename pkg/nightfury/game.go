@@ -2,6 +2,7 @@ package nightfury
 
 import (
 	"encoding/json"
+	"fmt"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
 )
 
@@ -9,9 +10,9 @@ var gamesBucketName = "games"
 
 // Game represents the game
 type Game struct {
-	Name        string
-	Instruction string
-	Type        string
+	Name        string `binding:"required"`
+	Instruction string `binding:"required"`
+	Type        string `binding:"required"`
 }
 
 // Games represents collection of games
@@ -20,7 +21,13 @@ type Games map[string]Game
 // NewGameFromRepoWithName return all the client from db
 func NewGameFromRepoWithName(repo db.Repository, name string) (Game, error) {
 	game := Game{}
-	err := repo.Fetch(gamesBucketName, name, &game)
+	ok, err := repo.Fetch(gamesBucketName, name, &game)
+	if err == nil {
+		if ok {
+			return game, nil
+		}
+		return game, db.EntryNotFound(fmt.Sprintf("game with name %v doesn't exists", name))
+	}
 	return game, err
 }
 
@@ -41,6 +48,11 @@ func (g Game) ID() string {
 // Save saves the client information to db
 func (g Game) Save(repo db.Repository) error {
 	return repo.Save(gamesBucketName, g)
+}
+
+// Delete deletes the client information to db
+func (g Game) Delete(repo db.Repository) error {
+	return repo.Delete(gamesBucketName, g)
 }
 
 // GameStatus represents the game current status

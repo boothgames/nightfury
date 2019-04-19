@@ -2,6 +2,7 @@ package nightfury
 
 import (
 	"encoding/json"
+	"fmt"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
 )
 
@@ -33,7 +34,14 @@ func NewClient(name string, available bool, game ...GameStatus) Client {
 // NewClientFromRepoWithName return all the client from db
 func NewClientFromRepoWithName(repo db.Repository, name string) (Client, error) {
 	client := Client{}
-	err := repo.Fetch(clientsBucketName, name, &client)
+	ok, err := repo.Fetch(clientsBucketName, name, &client)
+	if err == nil {
+		if ok {
+			return client, nil
+		}
+		return client, db.EntryNotFound(fmt.Sprintf("client with name %v doesn't exists", name))
+
+	}
 	return client, err
 }
 
@@ -76,4 +84,9 @@ func (c Client) Disconnected() Client {
 // Save saves the client information to db
 func (c Client) Save(repo db.Repository) error {
 	return repo.Save(clientsBucketName, c)
+}
+
+// Delete deletes the client information to db
+func (c Client) Delete(repo db.Repository) error {
+	return repo.Delete(clientsBucketName, c)
 }

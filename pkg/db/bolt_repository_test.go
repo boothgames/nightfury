@@ -33,6 +33,28 @@ func TestBoltRepositorySave(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestBoltRepositoryDelete(t *testing.T) {
+	dir, _ := ioutil.TempDir("", "nightfury")
+	dbPath := path.Join(dir, "db")
+	model := TestModel{Name: "should be persisted"}
+	repo, _ := db.NewBoltRepository(dbPath)
+
+	defer func() {
+		_ = repo.(db.BoltRepository).Close()
+		_ = os.RemoveAll(dir)
+	}()
+	_ = repo.Save("test", model)
+
+	err := repo.Delete("test", model)
+	assert.NoError(t, err)
+
+	var actual TestModel
+	ok, err := repo.Fetch("test", model.ID(), &actual)
+
+	assert.False(t, ok)
+	assert.NoError(t, err)
+}
+
 func TestBoltRepositoryFetch(t *testing.T) {
 	dir, _ := ioutil.TempDir("", "nightfury")
 	dbPath := path.Join(dir, "db")
@@ -48,7 +70,7 @@ func TestBoltRepositoryFetch(t *testing.T) {
 	assert.NoError(t, err)
 
 	var actual TestModel
-	err = repo.Fetch("test", "should be persisted", &actual)
+	_, err = repo.Fetch("test", "should be persisted", &actual)
 	assert.NoError(t, err)
 
 	if !cmp.Equal(model, actual) {

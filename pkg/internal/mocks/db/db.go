@@ -84,12 +84,27 @@ func (mr *MockRepositoryMockRecorder) Save(bucketName, model interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), bucketName, model)
 }
 
-// Fetch mocks base method
-func (m *MockRepository) Fetch(bucketName, name string, model db.Model) error {
+// Delete mocks base method
+func (m *MockRepository) Delete(bucketName string, model db.Model) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Fetch", bucketName, name, model)
+	ret := m.ctrl.Call(m, "Delete", bucketName, model)
 	ret0, _ := ret[0].(error)
 	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockRepositoryMockRecorder) Delete(bucketName, model interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), bucketName, model)
+}
+
+// Fetch mocks base method
+func (m *MockRepository) Fetch(bucketName, name string, model db.Model) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Fetch", bucketName, name, model)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Fetch indicates an expected call of Fetch
