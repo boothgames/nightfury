@@ -114,3 +114,33 @@ func TestNewSecurityIncidentsFromRepo(t *testing.T) {
 		}
 	})
 }
+
+func TestSecurityIncidentDelete(t *testing.T) {
+	t.Run("should be able to delete security incident", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		securityIncident := nightfury.SecurityIncident{Title: "securityIncident"}
+		repository.EXPECT().Delete("securityIncidents", securityIncident)
+
+		err := securityIncident.Delete(repository)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("should return error returned by repository delete", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		securityIncident := nightfury.SecurityIncident{Title: "securityIncident"}
+		repository.EXPECT().Delete("securityIncidents", securityIncident).Return(fmt.Errorf("unable to delete"))
+
+		err := securityIncident.Delete(repository)
+
+		if assert.Error(t, err) {
+			assert.Equal(t, "unable to delete", err.Error())
+		}
+	})
+}

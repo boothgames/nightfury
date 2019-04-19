@@ -76,3 +76,15 @@ func updateSecurityIncident(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, securityIncidentToBeUpdated)
 }
+
+func deleteSecurityIncident(c *gin.Context) {
+	securityIncident, _ := c.Get("security_incident")
+	securityIncidentToBeDeleted := securityIncident.(nightfury.SecurityIncident)
+	repository := db.DefaultRepository()
+	err := securityIncidentToBeDeleted.Delete(repository)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusOK)
+}

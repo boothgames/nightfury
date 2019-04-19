@@ -50,3 +50,8 @@ func (si SecurityIncident) ID() string {
 func (si SecurityIncident) Save(repo db.Repository) error {
 	return repo.Save(securityIncidentBucketName, si)
 }
+
+// Delete deletes the client information to db
+func (si SecurityIncident) Delete(repo db.Repository) error {
+	return repo.Delete(securityIncidentBucketName, si)
+}
