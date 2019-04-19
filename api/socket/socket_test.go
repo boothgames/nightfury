@@ -1,4 +1,4 @@
-package api
+package socket
 
 import (
 	"github.com/stretchr/testify/assert"

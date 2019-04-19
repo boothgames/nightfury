@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"gitlab.com/jskswamy/nightfury/api/socket"
 	"gitlab.com/jskswamy/nightfury/log"
 )
 
@@ -35,9 +36,8 @@ func Bind(engine *gin.Engine) {
 
 	wsV1 := engine.Group("/ws/v1")
 	{
-		wsV1.GET("clients/:id", handleClients)
-		wsV1.GET("clients/:id/games/:name", handleGames)
+		wsV1.GET("clients/:id", socket.HandleClients)
+		wsV1.GET("clients/:id/games/:name", socket.HandleGames)
 	}
-
-	bindSocket()
+	socket.BindSocket()
 }
