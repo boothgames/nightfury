@@ -66,7 +66,7 @@ func (si SecurityIncident) Delete(repo db.Repository) error {
 // DetectChangeInTitle will return error if title changes during update
 func (si SecurityIncident) DetectChangeInTitle(incidentToBeUpdated SecurityIncident) error {
 	if si.Title != convertHyphenToSpaces(incidentToBeUpdated.Title) {
-		return fmt.Errorf("title %v cannot be different", si.Title)
+		return fmt.Errorf("title '%v' cannot be different", si.Title)
 	}
 	return nil
 }
