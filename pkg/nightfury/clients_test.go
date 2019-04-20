@@ -565,35 +565,137 @@ func TestClientHasNext(t *testing.T) {
 	})
 }
 
+func TestClientFailGame(t *testing.T) {
+	t.Run("should fail game", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		game := nightfury.Game{Name: "ludo"}
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+				"ludo":             {Name: "ludo", Status: nightfury.InProgress},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
+
+		expectedClient := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+				"ludo":             {Name: "ludo", Status: nightfury.Failed},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
+
+		mockRepository.EXPECT().Save("clients", expectedClient)
+
+		err := client.FailGame(game)
+		assert.NoError(t, err)
+	})
+
+	t.Run("should not fail when error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		game := nightfury.Game{Name: "ludo"}
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+				"ludo":             {Name: "ludo", Status: nightfury.InProgress},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
+
+		expectedClient := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+				"ludo":             {Name: "ludo", Status: nightfury.Failed},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
+
+		mockRepository.EXPECT().Save("clients", expectedClient).Return(fmt.Errorf("unable to save"))
+
+		err := client.FailGame(game)
+		assert.Error(t, err)
+		assert.Equal(t, "unable to save", err.Error())
+	})
+}
+
 func TestClient_Reset(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockRepository := mocks.NewMockRepository(ctrl)
-	restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+	t.Run("should reset", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
 
-	defer func() {
-		ctrl.Finish()
-		restore()
-	}()
-	client := nightfury.Client{
-		GameStatuses: nightfury.GameStatuses{
-			"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
-			"ludo":             {Name: "ludo", Status: nightfury.Failed},
-			"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
-		},
-	}
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+				"ludo":             {Name: "ludo", Status: nightfury.Failed},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
 
-	expectedClient := nightfury.Client{
-		GameStatuses: nightfury.GameStatuses{
-			"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Ready},
-			"ludo":             {Name: "ludo", Status: nightfury.Ready},
-			"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
-		},
-	}
+		expectedClient := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Ready},
+				"ludo":             {Name: "ludo", Status: nightfury.Ready},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
 
-	mockRepository.EXPECT().Save("clients", expectedClient)
+		mockRepository.EXPECT().Save("clients", expectedClient)
 
-	err := client.Reset()
-	assert.NoError(t, err)
+		err := client.Reset()
+		assert.NoError(t, err)
+	})
+
+	t.Run("should not reset when error", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+		client := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+				"ludo":             {Name: "ludo", Status: nightfury.Failed},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
+
+		expectedClient := nightfury.Client{
+			GameStatuses: nightfury.GameStatuses{
+				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Ready},
+				"ludo":             {Name: "ludo", Status: nightfury.Ready},
+				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+			},
+		}
+		mockRepository.EXPECT().Save("clients", expectedClient).Return(fmt.Errorf("unable to save"))
+
+		err := client.Reset()
+		assert.Error(t, err)
+		assert.Equal(t, "unable to save", err.Error())
+	})
 }
 
 func TestClientsDelete(t *testing.T) {
