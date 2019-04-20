@@ -53,7 +53,7 @@ func logErr(err error) {
 	}
 }
 
-func broadcastMessageToClient(message Message, client nightfury.Client) {
+func broadcastMessageToClient(client nightfury.Client, message Message) {
 	broadcastMessage(clientEngine, message, func(session *melody.Session) bool {
 		if name, ok := clientID(session); ok {
 			return name == client.Name
@@ -62,10 +62,12 @@ func broadcastMessageToClient(message Message, client nightfury.Client) {
 	})
 }
 
-func broadcastMessageToGame(message Message, game nightfury.Game) {
+func broadcastMessageToGame(client nightfury.Client, game nightfury.Game, message Message, ) {
 	broadcastMessage(gameEngine, message, func(session *melody.Session) bool {
-		if name, ok := gameName(session); ok {
-			return name == game.Name
+		if clientName, ok := clientID(session); ok {
+			if gameName, ok := gameName(session); ok {
+				return clientName == client.Name && gameName == game.Name
+			}
 		}
 		return false
 	})

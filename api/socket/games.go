@@ -127,7 +127,7 @@ func handleGameFailed(game nightfury.Game, client nightfury.Client) {
 		return
 	}
 	message := Message{Action: gameFailed, Payload: game}
-	broadcastMessageToClient(message, client)
+	broadcastMessageToClient(client, message)
 }
 
 func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
@@ -137,7 +137,7 @@ func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
 		return
 	}
 	message := Message{Action: gameCompleted, Payload: game}
-	broadcastMessageToClient(message, client)
+	broadcastMessageToClient(client, message)
 
 	if client.HasNext() {
 		nextGame, err := client.Next()
@@ -153,7 +153,7 @@ func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
 func handleGameStarted(game nightfury.Game, client nightfury.Client) {
 	log.Infof("game '%v' of client '%v' has started playing", game.Name, client.Name)
 	message := Message{Action: gameStarted, Payload: game}
-	broadcastMessageToClient(message, client)
+	broadcastMessageToClient(client, message)
 }
 
 func gameFromSession(session *melody.Session, notFoundFn func(name string) (nightfury.Game, error)) (*nightfury.Game, db.Repository, error) {

@@ -82,8 +82,8 @@ func processClientMessage(message Message, client nightfury.Client) {
 			log.Error(fmt.Errorf("cannot start games of client %v. Error: %v", client.Name, err))
 			return
 		}
-		message.Payload = firstGame
-		broadcastMessageToGame(message, firstGame)
+		message := Message{Action: startClient, Payload: firstGame}
+		broadcastMessageToGame(client, firstGame, message)
 	case resetClient:
 		log.Infof("client '%v' has requested reset games", client.Name)
 	default:
