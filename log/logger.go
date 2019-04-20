@@ -30,7 +30,7 @@ func Error(args ...interface{}) {
 	logger.Error(args...)
 }
 
-// Error logs error level logs
+// Errorf logs error level logs
 func Errorf(format string, args ...interface{}) {
 	logger.Errorf(format, args...)
 }
