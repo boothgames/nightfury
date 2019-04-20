@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/jskswamy/nightfury/log"
@@ -8,6 +9,11 @@ import (
 	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"gopkg.in/olahol/melody.v1"
 	"net/http"
+)
+
+const (
+	startClient = "start"
+	resetClient = "reset"
 )
 
 // HandleClients handle socket connection related to clients
@@ -32,6 +38,7 @@ func clientConnected(session *melody.Session) {
 	connectedClient := client.Connected()
 	err = connectedClient.Save(repository)
 	logErr(err)
+	log.Infof("client %v connected", client.Name)
 }
 
 func clientDisconnected(session *melody.Session) {
@@ -45,6 +52,37 @@ func clientDisconnected(session *melody.Session) {
 	connectedClient := client.Disconnected()
 	err = connectedClient.Save(repository)
 	logErr(err)
+	log.Infof("client %v disconnected", client.Name)
+}
+
+func clientMessageReceived(session *melody.Session, data []byte) {
+	client, _, err := clientFromSession(session, func(id string) (client nightfury.Client, e error) {
+		return nightfury.Client{}, fmt.Errorf("client %v not found", client.Name)
+	})
+	if err != nil {
+		logErr(err)
+	}
+
+	clientMessage := Message{}
+	err = json.Unmarshal(data, &clientMessage)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	processClientMessage(clientMessage, *client)
+}
+
+func processClientMessage(message Message, client nightfury.Client) {
+	switch message.Action {
+	case startClient:
+		log.Infof("client '%v' has requested to start playing", client.Name)
+	case resetClient:
+		log.Infof("client '%v' has requested reset games", client.Name)
+	default:
+		err := fmt.Errorf("unknown action '%v' from client '%v'", message.Action, client.Name)
+		logErr(err)
+	}
 }
 
 func clientFromSession(session *melody.Session, notFoundFn func(id string) (nightfury.Client, error)) (*nightfury.Client, db.Repository, error) {
@@ -63,12 +101,4 @@ func clientFromSession(session *melody.Session, notFoundFn func(id string) (nigh
 		return &client, repository, nil
 	}
 	return nil, nil, fmt.Errorf("unable to parse client id from session")
-}
-
-func clientMessageReceived(session *melody.Session, msg []byte) {
-	if source, ok := gameName(session); ok {
-		message := fmt.Sprintf("%s says %s", source, string(msg))
-		_ = gameEngine.BroadcastOthers([]byte(message), session)
-		log.Info(message)
-	}
 }

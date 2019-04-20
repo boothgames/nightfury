@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gitlab.com/jskswamy/nightfury/log"
@@ -8,6 +9,12 @@ import (
 	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"gopkg.in/olahol/melody.v1"
 	"net/http"
+)
+
+const (
+	gameStarted   = "started"
+	gameCompleted = "completed"
+	gameFailed    = "failed"
 )
 
 // HandleGames handle socket connection related to games
@@ -49,6 +56,7 @@ func gameConnected(session *melody.Session) {
 	client.Add(*game)
 	err = client.Save(repository)
 	logErr(err)
+	log.Infof("game '%v' of client '%v' connected", game.Name, client.Name)
 }
 
 func gameDisconnected(session *melody.Session) {
@@ -69,6 +77,53 @@ func gameDisconnected(session *melody.Session) {
 	client.Remove(*game)
 	err = client.Save(repository)
 	logErr(err)
+	log.Infof("game '%v' of client '%v' disconnected", game.Name, client.Name)
+}
+
+func gameMessageReceived(session *melody.Session, data []byte) {
+	client, _, err := clientFromSession(session, func(id string) (client nightfury.Client, e error) {
+		return nightfury.Client{}, fmt.Errorf("client not found")
+	})
+	if err != nil {
+		logErr(err)
+		return
+	}
+
+	game, _, err := gameFromSession(session, func(name string) (nightfury.Game, error) {
+		return nightfury.Game{}, fmt.Errorf("game %v not found", name)
+	})
+	if err != nil {
+		logErr(err)
+		return
+	}
+
+	message := Message{}
+	err = json.Unmarshal(data, &message)
+	if err != nil {
+		logErr(err)
+		return
+	}
+	processGameMessage(message, *client, *game)
+}
+
+func processGameMessage(message Message, client nightfury.Client, game nightfury.Game) {
+	switch message.Action {
+	case gameStarted:
+		log.Infof("game '%v' of client '%v' has started playing", game.Name, client.Name)
+		message.Payload = game
+		broadcastMessageToClient(message, client)
+	case gameCompleted:
+		log.Infof("game '%v' of client '%v' has completed playing", game.Name, client.Name)
+		message.Payload = game
+		broadcastMessageToClient(message, client)
+	case gameFailed:
+		log.Infof("game '%v' of client '%v' has failed", game.Name, client.Name)
+		message.Payload = game
+		broadcastMessageToClient(message, client)
+	default:
+		err := fmt.Errorf("unknown action '%v' from game '%v' of client '%v'", message.Action, game.Name, client.Name)
+		logErr(err)
+	}
 }
 
 func gameFromSession(session *melody.Session, notFoundFn func(name string) (nightfury.Game, error)) (*nightfury.Game, db.Repository, error) {
@@ -87,8 +142,4 @@ func gameFromSession(session *melody.Session, notFoundFn func(name string) (nigh
 		return &game, repository, nil
 	}
 	return nil, nil, fmt.Errorf("unable to parse game name from session")
-}
-
-func gameMessageReceived(session *melody.Session, msg []byte) {
-	_ = gameEngine.BroadcastOthers([]byte("broadcast"), session)
 }

@@ -1,8 +1,10 @@
 package socket
 
 import (
+	"encoding/json"
 	"fmt"
 	"gitlab.com/jskswamy/nightfury/log"
+	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"gopkg.in/olahol/melody.v1"
 )
 
@@ -48,5 +50,28 @@ func clientID(session *melody.Session) (string, bool) {
 func logErr(err error) {
 	if err != nil {
 		log.Error(err)
+	}
+}
+
+func broadcastMessageToClient(message Message, client nightfury.Client) {
+	broadcastMessage(clientEngine, message, func(session *melody.Session) bool {
+		if name, ok := clientID(session); ok {
+			return name == client.Name
+		}
+		return false
+	})
+}
+
+func broadcastMessage(engine *melody.Melody, message Message, predicateFn func(session *melody.Session) bool) {
+	data, err := json.Marshal(message)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	err = engine.BroadcastFilter(data, predicateFn)
+	if err != nil {
+		log.Error(err)
+		return
 	}
 }

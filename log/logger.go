@@ -15,6 +15,11 @@ func Info(args ...interface{}) {
 	logger.Info(args...)
 }
 
+// Infof logs info level logs
+func Infof(format string, args ...interface{}) {
+	logger.Infof(format, args...)
+}
+
 // Debug logs debug level logs
 func Debug(args ...interface{}) {
 	logger.Debug(args...)
