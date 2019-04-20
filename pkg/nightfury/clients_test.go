@@ -343,6 +343,7 @@ func TestClientStart(t *testing.T) {
 				}
 				return false, nil
 			})
+		mockRepository.EXPECT().Save("clients", gomock.Any())
 
 		_, err := client.Start()
 		assert.NoError(t, err)
@@ -398,6 +399,7 @@ func TestClientNext(t *testing.T) {
 				}
 				return false, nil
 			})
+		mockRepository.EXPECT().Save("clients", gomock.Any())
 
 		_, err := client.Next()
 

@@ -113,7 +113,7 @@ func (c Client) Delete(repo db.Repository) error {
 // Start starts the first ready game, returns error if game is already started
 func (c Client) Start() (Game, error) {
 	if c.Status() == Ready {
-		return c.GameStatuses.ReadyGame()
+		return c.startNextGame()
 	}
 	return Game{}, fmt.Errorf("game already started")
 }
@@ -142,5 +142,21 @@ func (c Client) Next() (Game, error) {
 	if c.GameStatuses.IsAnyGameInProgress() {
 		return Game{}, fmt.Errorf("game already in progress")
 	}
-	return c.GameStatuses.ReadyGame()
+	return c.startNextGame()
+}
+
+func (c Client) startNextGame() (Game, error) {
+	game, err := c.GameStatuses.ReadyGame()
+	if err != nil {
+		return game, err
+	}
+
+	repository := db.DefaultRepository()
+	gameStatus, err := c.GameStatuses[game.Name].InProgress()
+	if err != nil {
+		return game, err
+	}
+	c.GameStatuses[game.Name] = gameStatus
+	err = c.Save(repository)
+	return game, err
 }
