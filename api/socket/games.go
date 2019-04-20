@@ -31,6 +31,10 @@ func HandleGames(c *gin.Context) {
 }
 
 func gameConnected(session *melody.Session) {
+	lock.Lock()
+	defer func() {
+		lock.Unlock()
+	}()
 	client, _, err := clientFromSession(session, func(id string) (client nightfury.Client, e error) {
 		return nightfury.Client{}, fmt.Errorf("client not found")
 	})
@@ -60,6 +64,10 @@ func gameConnected(session *melody.Session) {
 }
 
 func gameDisconnected(session *melody.Session) {
+	lock.Lock()
+	defer func() {
+		lock.Unlock()
+	}()
 	client, _, err := clientFromSession(session, func(id string) (client nightfury.Client, e error) {
 		return nightfury.Client{}, fmt.Errorf("client not found")
 	})
@@ -81,6 +89,10 @@ func gameDisconnected(session *melody.Session) {
 }
 
 func gameMessageReceived(session *melody.Session, data []byte) {
+	lock.Lock()
+	defer func() {
+		lock.Unlock()
+	}()
 	client, _, err := clientFromSession(session, func(id string) (client nightfury.Client, e error) {
 		return nightfury.Client{}, fmt.Errorf("client not found")
 	})

@@ -28,6 +28,10 @@ func HandleClients(c *gin.Context) {
 }
 
 func clientConnected(session *melody.Session) {
+	lock.Lock()
+	defer func() {
+		lock.Unlock()
+	}()
 	client, repository, err := clientFromSession(session, func(id string) (nightfury.Client, error) {
 		return nightfury.NewClient(id, true), nil
 	})
@@ -42,6 +46,10 @@ func clientConnected(session *melody.Session) {
 }
 
 func clientDisconnected(session *melody.Session) {
+	lock.Lock()
+	defer func() {
+		lock.Unlock()
+	}()
 	client, repository, err := clientFromSession(session, func(id string) (nightfury.Client, error) {
 		return nightfury.NewClient(id, false), nil
 	})
@@ -56,6 +64,10 @@ func clientDisconnected(session *melody.Session) {
 }
 
 func clientMessageReceived(session *melody.Session, data []byte) {
+	lock.Lock()
+	defer func() {
+		lock.Unlock()
+	}()
 	client, _, err := clientFromSession(session, func(id string) (client nightfury.Client, e error) {
 		return nightfury.Client{}, fmt.Errorf("client %v not found", client.Name)
 	})

@@ -6,10 +6,12 @@ import (
 	"gitlab.com/jskswamy/nightfury/log"
 	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"gopkg.in/olahol/melody.v1"
+	"sync"
 )
 
 var gameEngine = melody.New()
 var clientEngine = melody.New()
+var lock = new(sync.Mutex)
 
 const (
 	socketClientID = "id"
