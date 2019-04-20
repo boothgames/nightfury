@@ -103,24 +103,24 @@ func gameMessageReceived(session *melody.Session, data []byte) {
 		logErr(err)
 		return
 	}
-	processGameMessage(message, *client, *game)
+	processGameMessage(*client, *game, message)
 }
 
-func processGameMessage(message Message, client nightfury.Client, game nightfury.Game) {
+func processGameMessage(client nightfury.Client, game nightfury.Game, message Message) {
 	switch message.Action {
 	case gameStarted:
-		handleGameStarted(game, client)
+		handleGameStarted(client, game)
 	case gameCompleted:
-		handleGameCompleted(game, client)
+		handleGameCompleted(client, game)
 	case gameFailed:
-		handleGameFailed(game, client)
+		handleGameFailed(client, game)
 	default:
 		err := fmt.Errorf("unknown action '%v' from game '%v' of client '%v'", message.Action, game.Name, client.Name)
 		logErr(err)
 	}
 }
 
-func handleGameFailed(game nightfury.Game, client nightfury.Client) {
+func handleGameFailed(client nightfury.Client, game nightfury.Game) {
 	log.Infof("game '%v' of client '%v' has failed", game.Name, client.Name)
 	if err := client.FailGame(game); err != nil {
 		logErr(err)
@@ -130,7 +130,7 @@ func handleGameFailed(game nightfury.Game, client nightfury.Client) {
 	broadcastMessageToClient(client, message)
 }
 
-func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
+func handleGameCompleted(client nightfury.Client, game nightfury.Game) {
 	log.Infof("game '%v' of client '%v' has completed playing", game.Name, client.Name)
 	if err := client.CompleteGame(game); err != nil {
 		logErr(err)
@@ -145,12 +145,12 @@ func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
 			logErr(err)
 			return
 		}
-		handleGameStarted(nextGame, client)
+		handleGameStarted(client, nextGame)
 		return
 	}
 }
 
-func handleGameStarted(game nightfury.Game, client nightfury.Client) {
+func handleGameStarted(client nightfury.Client, game nightfury.Game) {
 	log.Infof("game '%v' of client '%v' has started playing", game.Name, client.Name)
 	message := Message{Action: gameStarted, Payload: game}
 	broadcastMessageToClient(client, message)

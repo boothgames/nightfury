@@ -62,7 +62,7 @@ func broadcastMessageToClient(client nightfury.Client, message Message) {
 	})
 }
 
-func broadcastMessageToGame(client nightfury.Client, game nightfury.Game, message Message, ) {
+func broadcastMessageToGame(client nightfury.Client, game nightfury.Game, message Message) {
 	broadcastMessage(gameEngine, message, func(session *melody.Session) bool {
 		if clientName, ok := clientID(session); ok {
 			if gameName, ok := gameName(session); ok {
