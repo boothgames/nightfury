@@ -18,6 +18,17 @@ type Client struct {
 // Clients represents the collection of Client
 type Clients map[string]Client
 
+// Delete deletes all the client information from db
+func (c Clients) Delete(repo db.Repository) error {
+	repository := db.DefaultRepository()
+	for _, client := range c {
+		if err := client.Delete(repository); err != nil {
+			return fmt.Errorf("delete failed for client %v, error: %v", client.Name, err)
+		}
+	}
+	return nil
+}
+
 // NewClient return a new instance of client with empty list of games
 func NewClient(name string, available bool, game ...GameStatus) Client {
 	games := GameStatuses{}

@@ -564,3 +564,48 @@ func TestClientHasNext(t *testing.T) {
 		assert.False(t, client.HasNext())
 	})
 }
+
+func TestClientsDelete(t *testing.T) {
+	t.Run("should be able to save client", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+		client1 := nightfury.Client{Name: "client1", Available: true}
+		client2 := nightfury.Client{Name: "client2", Available: true}
+		clients := nightfury.Clients{"client1": client1, "client2": client2}
+
+		mockRepository.EXPECT().Delete("clients", client1)
+		mockRepository.EXPECT().Delete("clients", client2)
+
+		err := clients.Delete(mockRepository)
+
+		assert.NoError(t, err)
+	})
+
+	t.Run("should return error returned by repository save", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		mockRepository := mocks.NewMockRepository(ctrl)
+		restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+		defer func() {
+			ctrl.Finish()
+			restore()
+		}()
+
+		client1 := nightfury.Client{Name: "client1", Available: true}
+		client2 := nightfury.Client{Name: "client2", Available: true}
+		clients := nightfury.Clients{"client1": client1, "client2": client2}
+		mockRepository.EXPECT().Delete("clients", client1).Return(fmt.Errorf("unable to save"))
+
+		err := clients.Delete(mockRepository)
+
+		if assert.Error(t, err) {
+			assert.Equal(t, "delete failed for client client1, error: unable to save", err.Error())
+		}
+	})
+}
