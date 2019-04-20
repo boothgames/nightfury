@@ -62,6 +62,15 @@ func broadcastMessageToClient(message Message, client nightfury.Client) {
 	})
 }
 
+func broadcastMessageToGame(message Message, game nightfury.Game) {
+	broadcastMessage(gameEngine, message, func(session *melody.Session) bool {
+		if name, ok := gameName(session); ok {
+			return name == game.Name
+		}
+		return false
+	})
+}
+
 func broadcastMessage(engine *melody.Melody, message Message, predicateFn func(session *melody.Session) bool) {
 	data, err := json.Marshal(message)
 	if err != nil {

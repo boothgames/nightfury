@@ -109,21 +109,33 @@ func gameMessageReceived(session *melody.Session, data []byte) {
 func processGameMessage(message Message, client nightfury.Client, game nightfury.Game) {
 	switch message.Action {
 	case gameStarted:
-		log.Infof("game '%v' of client '%v' has started playing", game.Name, client.Name)
-		message.Payload = game
-		broadcastMessageToClient(message, client)
+		handleGameStarted(game, client)
 	case gameCompleted:
-		log.Infof("game '%v' of client '%v' has completed playing", game.Name, client.Name)
-		message.Payload = game
-		broadcastMessageToClient(message, client)
+		handleGameCompleted(game, client)
 	case gameFailed:
-		log.Infof("game '%v' of client '%v' has failed", game.Name, client.Name)
-		message.Payload = game
-		broadcastMessageToClient(message, client)
+		handleGameFailed(game, client)
 	default:
 		err := fmt.Errorf("unknown action '%v' from game '%v' of client '%v'", message.Action, game.Name, client.Name)
 		logErr(err)
 	}
+}
+
+func handleGameFailed(game nightfury.Game, client nightfury.Client) {
+	log.Infof("game '%v' of client '%v' has failed", game.Name, client.Name)
+	message := Message{Action: gameFailed, Payload: game}
+	broadcastMessageToClient(message, client)
+}
+
+func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
+	log.Infof("game '%v' of client '%v' has completed playing", game.Name, client.Name)
+	message := Message{Action: gameCompleted, Payload: game}
+	broadcastMessageToClient(message, client)
+}
+
+func handleGameStarted(game nightfury.Game, client nightfury.Client) {
+	log.Infof("game '%v' of client '%v' has started playing", game.Name, client.Name)
+	message := Message{Action: gameStarted, Payload: game}
+	broadcastMessageToClient(message, client)
 }
 
 func gameFromSession(session *melody.Session, notFoundFn func(name string) (nightfury.Game, error)) (*nightfury.Game, db.Repository, error) {
