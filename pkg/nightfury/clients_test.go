@@ -565,6 +565,37 @@ func TestClientHasNext(t *testing.T) {
 	})
 }
 
+func TestClient_Reset(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	mockRepository := mocks.NewMockRepository(ctrl)
+	restore := db.ReplaceDefaultRepositoryWith(mockRepository)
+
+	defer func() {
+		ctrl.Finish()
+		restore()
+	}()
+	client := nightfury.Client{
+		GameStatuses: nightfury.GameStatuses{
+			"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
+			"ludo":             {Name: "ludo", Status: nightfury.Failed},
+			"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+		},
+	}
+
+	expectedClient := nightfury.Client{
+		GameStatuses: nightfury.GameStatuses{
+			"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Ready},
+			"ludo":             {Name: "ludo", Status: nightfury.Ready},
+			"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
+		},
+	}
+
+	mockRepository.EXPECT().Save("clients", expectedClient)
+
+	err := client.Reset()
+	assert.NoError(t, err)
+}
+
 func TestClientsDelete(t *testing.T) {
 	t.Run("should be able to save client", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

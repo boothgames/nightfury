@@ -195,3 +195,12 @@ func (c Client) FailGame(game Game) error {
 	err = c.Save(repository)
 	return err
 }
+
+// Reset resets state of all games
+func (c Client) Reset() error {
+	repository := db.DefaultRepository()
+	for name := range c.GameStatuses {
+		c.GameStatuses[name] = GameStatus{Name: name, Status: Ready}
+	}
+	return c.Save(repository)
+}

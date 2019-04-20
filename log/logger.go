@@ -30,6 +30,11 @@ func Error(args ...interface{}) {
 	logger.Error(args...)
 }
 
+// Error logs error level logs
+func Errorf(format string, args ...interface{}) {
+	logger.Errorf(format, args...)
+}
+
 // SetLogLevel sets the logger level.
 func SetLogLevel(level string) {
 	logLevel, err := logrus.ParseLevel(level)

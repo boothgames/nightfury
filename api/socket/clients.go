@@ -79,12 +79,17 @@ func processClientMessage(message Message, client nightfury.Client) {
 		log.Infof("client '%v' has requested to start playing", client.Name)
 		firstGame, err := client.Start()
 		if err != nil {
-			log.Error(fmt.Errorf("cannot start games of client %v. Error: %v", client.Name, err))
+			log.Errorf("cannot start games of client %v. Error: %v", client.Name, err)
 			return
 		}
 		messageGameToStart(client, firstGame)
 	case resetClient:
 		log.Infof("client '%v' has requested reset games", client.Name)
+		err := client.Reset()
+		if err != nil {
+			log.Errorf("cannot reset client %v. Error: %v", client.Name, err)
+			return
+		}
 	default:
 		err := fmt.Errorf("unknown action '%v' from client '%v'", message.Action, client.Name)
 		logErr(err)
