@@ -160,3 +160,27 @@ func (c Client) startNextGame() (Game, error) {
 	err = c.Save(repository)
 	return game, err
 }
+
+// CompleteGame completes a given game
+func (c Client) CompleteGame(game Game) error {
+	repository := db.DefaultRepository()
+	gameStatus, err := c.GameStatuses[game.Name].Completed()
+	if err != nil {
+		return err
+	}
+	c.GameStatuses[game.Name] = gameStatus
+	err = c.Save(repository)
+	return err
+}
+
+// FailGame completes a given game
+func (c Client) FailGame(game Game) error {
+	repository := db.DefaultRepository()
+	gameStatus, err := c.GameStatuses[game.Name].Failed()
+	if err != nil {
+		return err
+	}
+	c.GameStatuses[game.Name] = gameStatus
+	err = c.Save(repository)
+	return err
+}

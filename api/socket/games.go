@@ -122,14 +122,32 @@ func processGameMessage(message Message, client nightfury.Client, game nightfury
 
 func handleGameFailed(game nightfury.Game, client nightfury.Client) {
 	log.Infof("game '%v' of client '%v' has failed", game.Name, client.Name)
+	if err := client.FailGame(game); err != nil {
+		logErr(err)
+		return
+	}
 	message := Message{Action: gameFailed, Payload: game}
 	broadcastMessageToClient(message, client)
 }
 
 func handleGameCompleted(game nightfury.Game, client nightfury.Client) {
 	log.Infof("game '%v' of client '%v' has completed playing", game.Name, client.Name)
+	if err := client.CompleteGame(game); err != nil {
+		logErr(err)
+		return
+	}
 	message := Message{Action: gameCompleted, Payload: game}
 	broadcastMessageToClient(message, client)
+
+	if client.HasNext() {
+		nextGame, err := client.Next()
+		if err != nil {
+			logErr(err)
+			return
+		}
+		handleGameStarted(nextGame, client)
+		return
+	}
 }
 
 func handleGameStarted(game nightfury.Game, client nightfury.Client) {
