@@ -146,6 +146,7 @@ func handleGameCompleted(client nightfury.Client, game nightfury.Game) {
 			return
 		}
 		handleGameStarted(client, nextGame)
+		messageGameToStart(client, nextGame)
 		return
 	}
 }

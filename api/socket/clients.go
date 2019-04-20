@@ -82,14 +82,18 @@ func processClientMessage(message Message, client nightfury.Client) {
 			log.Error(fmt.Errorf("cannot start games of client %v. Error: %v", client.Name, err))
 			return
 		}
-		message := Message{Action: startClient, Payload: firstGame}
-		broadcastMessageToGame(client, firstGame, message)
+		messageGameToStart(client, firstGame)
 	case resetClient:
 		log.Infof("client '%v' has requested reset games", client.Name)
 	default:
 		err := fmt.Errorf("unknown action '%v' from client '%v'", message.Action, client.Name)
 		logErr(err)
 	}
+}
+
+func messageGameToStart(client nightfury.Client, game nightfury.Game) {
+	message := Message{Action: startClient, Payload: game}
+	broadcastMessageToGame(client, game, message)
 }
 
 func clientFromSession(session *melody.Session, notFoundFn func(id string) (nightfury.Client, error)) (*nightfury.Client, db.Repository, error) {
