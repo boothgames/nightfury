@@ -357,6 +357,7 @@
     "github.com/google/go-cmp/cmp",
     "github.com/jskswamy/herman/cmd/cli",
     "github.com/mitchellh/go-homedir",
+    "github.com/mitchellh/mapstructure",
     "github.com/spf13/cobra",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",

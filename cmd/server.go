@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jskswamy/herman/cmd/cli"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"gitlab.com/jskswamy/nightfury/api"
 	"gitlab.com/jskswamy/nightfury/pkg/db"
+	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,6 +28,16 @@ var serverCmd = &cobra.Command{
 
 		cli.DieIf(err)
 		cleanup := func() {
+			clients := nightfury.Clients{}
+			repository := db.DefaultRepository()
+			clientsFromRepo, err := nightfury.NewClientsFromRepo(repository)
+			cli.DieIf(err)
+
+			mapstructure.Decode(clientsFromRepo, &clients)
+			cli.Warn("deleting all clients from db")
+			clients.Delete(repository)
+
+			cli.Warn("shutting down db")
 			err = db.Close()
 			cli.DieIf(err)
 		}
@@ -46,9 +58,9 @@ var serverCmd = &cobra.Command{
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 		<-quit
-		cli.Warn("\nshutdown server ...")
+		cli.Warn("\ngracefully shutting down server ...")
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {
 			cli.Success("server shutdown:", err)
