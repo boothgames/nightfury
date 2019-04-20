@@ -86,6 +86,21 @@ func TestNewGameFromRepoWithName(t *testing.T) {
 		assert.NotNil(t, actual)
 	})
 
+	t.Run("should fail to fetch the client from db", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		repository := mocks.NewMockRepository(ctrl)
+		repository.EXPECT().Fetch("games", "one", gomock.Any()).Return(false, nil)
+
+		actual, err := nightfury.NewGameFromRepoWithName(repository, "one")
+
+		if assert.Error(t, err) {
+			assert.Equal(t, "game with name one doesn't exists", err.Error())
+		}
+		assert.Equal(t, nightfury.Game{}, actual)
+	})
+
 	t.Run("should return error returned while fetching data from repo", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
