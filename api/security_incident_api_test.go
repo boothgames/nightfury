@@ -13,9 +13,9 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 	router := setupTestContext()
 	defer teardownTestContext(t)
 	t.Run("create security incident", func(t *testing.T) {
-		expectedResponse := `{"Title":"title space title","Tag":"tag","Content":"new content","Takeaway":"new-takeaway2"}`
+		expectedResponse := `{"Title":"title space title","Tag":["tag"],"Content":"new content","Takeaway":"new-takeaway2"}`
 
-		createBody := `{"title": "title space title", "tag": "tag", "content": "new content", "takeaway": "new-takeaway2"}`
+		createBody := `{"title": "title space title", "tag": ["tag"], "content": "new content", "takeaway": "new-takeaway2"}`
 		response := performRequest(router, "POST", "/v1/security-incidents",
 			bytes.NewBuffer([]byte(createBody)))
 
@@ -26,7 +26,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 	t.Run("get all security incidents", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
-		expectedResponse := fmt.Sprintf("{\"%s\":{\"Title\":\"%s\",\"Tag\":\"tag\",\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}}",
+		expectedResponse := fmt.Sprintf("{\"%s\":{\"Title\":\"%s\",\"Tag\":[\"tag\"],\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}}",
 			titleHyphenated, title)
 
 		response := performRequest(router, "GET", "/v1/security-incidents", nil)
@@ -38,7 +38,7 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 	t.Run("read security incident", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
-		expectedResponse := fmt.Sprintf("{\"Title\":\"%s\",\"Tag\":\"tag\",\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}", title)
+		expectedResponse := fmt.Sprintf("{\"Title\":\"%s\",\"Tag\":[\"tag\"],\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}", title)
 
 		response := performRequest(router, "GET", fmt.Sprintf("/v1/security-incidents/%v", titleHyphenated), nil)
 
@@ -49,9 +49,9 @@ func TestSecurityIncidentAPISuccessScenarios(t *testing.T) {
 	t.Run("update security incident", func(t *testing.T) {
 		title := "title space title"
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
-		expectedResponse := fmt.Sprintf("{\"Title\":\"%s\",\"Tag\":\"new tag\",\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}", title)
+		expectedResponse := fmt.Sprintf("{\"Title\":\"%s\",\"Tag\":[\"new tag\"],\"Content\":\"new content\",\"Takeaway\":\"new-takeaway2\"}", title)
 
-		updateBody := `{"title": "title space title", "tag": "new tag", "content": "new content", "takeaway": "new-takeaway2"}`
+		updateBody := `{"title": "title space title", "tag": ["new tag"], "content": "new content", "takeaway": "new-takeaway2"}`
 		response := performRequest(router, "PUT", fmt.Sprintf("/v1/security-incidents/%v", titleHyphenated),
 			bytes.NewBuffer([]byte(updateBody)))
 
@@ -120,11 +120,11 @@ func TestSecurityIncidentUpdateFailure(t *testing.T) {
 		titleHyphenated := strings.Replace(title, " ", "-", -1)
 		expectedResponse := fmt.Sprintf("{\"error\":\"title '%v' cannot be different\"}", title)
 
-		createBody := `{"title": "title space title", "tag": "tag", "content": "new content", "takeaway": "new-takeaway2"}`
+		createBody := `{"title": "title space title", "tag": ["tag"], "content": "new content", "takeaway": "new-takeaway2"}`
 		performRequest(router, "POST", "/v1/security-incidents",
 			bytes.NewBuffer([]byte(createBody)))
 
-		updateBody := `{"title": "title space title2", "tag": "new tag", "content": "new content", "takeaway": "new-takeaway2"}`
+		updateBody := `{"title": "title space title2", "tag": ["new tag"], "content": "new content", "takeaway": "new-takeaway2"}`
 		response := performRequest(router, "PUT", fmt.Sprintf("/v1/security-incidents/%v", titleHyphenated),
 			bytes.NewBuffer([]byte(updateBody)))
 

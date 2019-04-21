@@ -12,7 +12,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 	router := setupTestContext()
 	defer teardownTestContext(t)
 	t.Run("create game incident", func(t *testing.T) {
-		expectedResponse := `{"Name":"example","Instruction":"instruction","Type":"manual"}`
+		expectedResponse := `{"Name":"example","Title":"","Instruction":"instruction","Type":"manual","Mode":"","Metadata":null}`
 
 		createBody := `{"name": "example","instruction": "instruction","type": "manual"}`
 		response := performRequest(router, "POST", "/v1/games",
@@ -23,7 +23,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 	})
 
 	t.Run("get all game incidents", func(t *testing.T) {
-		expectedResponse := "{\"example\":{\"Name\":\"example\",\"Instruction\":\"instruction\",\"Type\":\"manual\"}}"
+		expectedResponse := "{\"example\":{\"Name\":\"example\",\"Title\":\"\",\"Instruction\":\"instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}}"
 
 		response := performRequest(router, "GET", "/v1/games", nil)
 
@@ -33,7 +33,7 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 
 	t.Run("read game incident", func(t *testing.T) {
 		gameName := "example"
-		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Instruction\":\"instruction\",\"Type\":\"manual\"}", gameName)
+		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Title\":\"\",\"Instruction\":\"instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}", gameName)
 
 		response := performRequest(router, "GET", fmt.Sprintf("/v1/games/%v", gameName), nil)
 
@@ -43,9 +43,9 @@ func TestGameAPISuccessScenarios(t *testing.T) {
 
 	t.Run("update game incident", func(t *testing.T) {
 		gameName := "example"
-		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\"}", gameName)
+		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Title\":\"\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}", gameName)
 
-		updateBody := "{\"Name\":\"example\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\"}"
+		updateBody := "{\"Name\":\"example\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}"
 		response := performRequest(router, "PUT", fmt.Sprintf("/v1/games/%v", gameName),
 			bytes.NewBuffer([]byte(updateBody)))
 
@@ -106,7 +106,7 @@ func TestGameUpdateFailure(t *testing.T) {
 	})
 	t.Run("update security incident should fail if title is changed", func(t *testing.T) {
 		firstName := "first"
-		createBody := fmt.Sprintf("{\"name\": \"%v\",\"instruction\": \"instruction\",\"type\": \"manual\"}", firstName)
+		createBody := fmt.Sprintf("{\"name\": \"%v\",\"instruction\": \"instruction\",\"type\": \"manual\",\"Mode\":\"\",\"Metadata\":null}", firstName)
 		performRequest(router, "POST", "/v1/games",
 			bytes.NewBuffer([]byte(createBody)))
 

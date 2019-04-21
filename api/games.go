@@ -34,6 +34,25 @@ func createGame(c *gin.Context) {
 	c.JSON(http.StatusCreated, game)
 }
 
+func uploadGames(c *gin.Context) {
+	var games []nightfury.Game
+	repository := db.DefaultRepository()
+	err := c.ShouldBindJSON(&games)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	for _, game := range games {
+		err = game.Save(repository)
+
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+	c.JSON(http.StatusCreated, games)
+}
+
 func populateGame(c *gin.Context) {
 	gameName := c.Param("id")
 	repository := db.DefaultRepository()

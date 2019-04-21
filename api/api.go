@@ -19,6 +19,8 @@ func Bind(engine *gin.Engine) {
 	})
 	v1 := engine.Group("/v1")
 	{
+		v1.POST("/bulk/games", uploadGames)
+		v1.POST("/bulk/security-incidents", uploadSecurityIncidents)
 		v1.GET("/games", listGames)
 		v1.POST("/games", createGame)
 		v1.GET("/games/:id", populateGame, readGame)

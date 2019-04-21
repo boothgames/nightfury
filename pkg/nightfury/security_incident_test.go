@@ -21,7 +21,7 @@ func TestSecurityIncidentSave(t *testing.T) {
 		securityIncident := nightfury.SecurityIncident{
 			Title:    "title",
 			Content:  "content",
-			Tag:      "web",
+			Tag:      []string{"web"},
 			Takeaway: "dont do this",
 		}
 		repository.EXPECT().Save("securityIncidents", securityIncident)
@@ -101,7 +101,7 @@ func TestNewSecurityIncidentsFromRepo(t *testing.T) {
 			"title": nightfury.SecurityIncident{
 				Title:    "title",
 				Content:  "content",
-				Tag:      "web",
+				Tag:      []string{"web"},
 				Takeaway: "dont do this",
 			},
 		}
@@ -111,7 +111,7 @@ func TestNewSecurityIncidentsFromRepo(t *testing.T) {
 				data, _ := json.Marshal(nightfury.SecurityIncident{
 					Title:    "title",
 					Content:  "content",
-					Tag:      "web",
+					Tag:      []string{"web"},
 					Takeaway: "dont do this",
 				})
 				model, err := modelFn(data)

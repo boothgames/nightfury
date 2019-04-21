@@ -33,6 +33,24 @@ func createSecurityIncident(c *gin.Context) {
 	c.JSON(http.StatusCreated, securityIncident)
 }
 
+func uploadSecurityIncidents(c *gin.Context) {
+	var securityIncidents []nightfury.SecurityIncident
+	repository := db.DefaultRepository()
+	err := c.ShouldBindJSON(&securityIncidents)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	for _, securityIncident := range securityIncidents {
+		err = securityIncident.Save(repository)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+	c.JSON(http.StatusCreated, securityIncidents)
+}
+
 func populateSecurityIncident(c *gin.Context) {
 	securityIncidentTitle := c.Param("id")
 	repository := db.DefaultRepository()
