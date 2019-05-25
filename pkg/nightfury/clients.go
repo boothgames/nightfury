@@ -10,9 +10,9 @@ var clientsBucketName = "clients"
 
 // Client represent the client from where the games are started
 type Client struct {
-	Name         string
-	Available    bool
-	GameStatuses GameStatuses
+	Name         string       `json:"name"`
+	Available    bool         `json:"available"`
+	GameStatuses GameStatuses `json:"gameStatuses"`
 }
 
 // Clients represents the collection of Client

@@ -1,8 +1,9 @@
 package api_test
 
 import (
-	"bytes"
 	"fmt"
+	internalAssert "github.com/boothgames/nightfury/api/internal/assert"
+	"github.com/boothgames/nightfury/pkg/nightfury"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -11,46 +12,46 @@ import (
 func TestGameAPISuccessScenarios(t *testing.T) {
 	router := setupTestContext()
 	defer teardownTestContext(t)
-	t.Run("create game incident", func(t *testing.T) {
-		expectedResponse := `{"Name":"example","Title":"","Instruction":"instruction","Type":"manual","Mode":"","Metadata":null}`
 
-		createBody := `{"name": "example","instruction": "instruction","type": "manual"}`
-		response := performRequest(router, "POST", "/v1/games",
-			bytes.NewBuffer([]byte(createBody)))
+	t.Run("create game incident", func(t *testing.T) {
+		game := nightfury.Game{Name: "example", Instruction: "instruction", Type: "manual"}
+		expected := nightfury.Game{Name: "example", Title: "", Instruction: "instruction", Type: "manual", Mode: "", Metadata: nil}
+
+		response := performRequest(router, "POST", "/v1/games", game)
 
 		assert.Equal(t, http.StatusCreated, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		internalAssert.Game(t, expected, response)
 	})
 
 	t.Run("get all game incidents", func(t *testing.T) {
-		expectedResponse := "{\"example\":{\"Name\":\"example\",\"Title\":\"\",\"Instruction\":\"instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}}"
+		expected := nightfury.Games{"example": {Name: "example", Title: "", Instruction: "instruction", Type: "manual", Mode: "", Metadata: nil}}
 
 		response := performRequest(router, "GET", "/v1/games", nil)
 
 		assert.Equal(t, http.StatusOK, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		internalAssert.Games(t, expected, response)
 	})
 
 	t.Run("read game incident", func(t *testing.T) {
 		gameName := "example"
-		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Title\":\"\",\"Instruction\":\"instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}", gameName)
+		expected := nightfury.Game{Name: gameName, Title: "", Instruction: "instruction", Type: "manual", Mode: "", Metadata: nil}
 
 		response := performRequest(router, "GET", fmt.Sprintf("/v1/games/%v", gameName), nil)
 
 		assert.Equal(t, http.StatusOK, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		internalAssert.Game(t, expected, response)
 	})
 
 	t.Run("update game incident", func(t *testing.T) {
 		gameName := "example"
-		expectedResponse := fmt.Sprintf("{\"Name\":\"%v\",\"Title\":\"\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}", gameName)
 
-		updateBody := "{\"Name\":\"example\",\"Instruction\":\"new-instruction\",\"Type\":\"manual\",\"Mode\":\"\",\"Metadata\":null}"
-		response := performRequest(router, "PUT", fmt.Sprintf("/v1/games/%v", gameName),
-			bytes.NewBuffer([]byte(updateBody)))
+		expected := nightfury.Game{Name: "example", Title: "", Instruction: "new-instruction", Type: "manual", Mode: "", Metadata: nil}
+		game := nightfury.Game{Name: "example", Title: "", Instruction: "new-instruction", Type: "manual", Mode: "", Metadata: nil}
+
+		response := performRequest(router, "PUT", fmt.Sprintf("/v1/games/%v", gameName), game)
 
 		assert.Equal(t, http.StatusOK, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		internalAssert.Game(t, expected, response)
 	})
 
 	t.Run("delete game incident", func(t *testing.T) {
@@ -67,12 +68,12 @@ func TestGameReadFailure(t *testing.T) {
 
 	t.Run("read game should fail when name does'nt exist in db", func(t *testing.T) {
 		gameName := "random"
-		expectedResponse := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
+		expected := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
 
 		response := performRequest(router, "GET", fmt.Sprintf("/v1/games/%v", gameName), nil)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		assert.Equal(t, expected, response.Body.String())
 	})
 }
 
@@ -82,12 +83,12 @@ func TestGameDeleteFailure(t *testing.T) {
 
 	t.Run("delete security incident should fail when name does'nt exist in db", func(t *testing.T) {
 		gameName := "random"
-		expectedResponse := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
+		expected := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
 
 		response := performRequest(router, "DELETE", fmt.Sprintf("/v1/games/%v", gameName), nil)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		assert.Equal(t, expected, response.Body.String())
 	})
 }
 
@@ -97,26 +98,27 @@ func TestGameUpdateFailure(t *testing.T) {
 
 	t.Run("update games should fail when name does'nt exist in db", func(t *testing.T) {
 		gameName := "random"
-		expectedResponse := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
+		expected := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
 
 		response := performRequest(router, "GET", fmt.Sprintf("/v1/games/%v", gameName), nil)
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		assert.Equal(t, expected, response.Body.String())
 	})
+
 	t.Run("update security incident should fail if title is changed", func(t *testing.T) {
-		firstName := "first"
-		createBody := fmt.Sprintf("{\"name\": \"%v\",\"instruction\": \"instruction\",\"type\": \"manual\",\"Mode\":\"\",\"Metadata\":null}", firstName)
-		performRequest(router, "POST", "/v1/games",
-			bytes.NewBuffer([]byte(createBody)))
 
-		expectedResponse := "{\"error\":\"name cannot be different\"}"
+		name := "first"
+		game := nightfury.Game{Name: name, Title: "", Instruction: "new-instruction", Type: "manual", Mode: "", Metadata: nil}
 
-		updateBody := `{"name": "example","instruction": "instruction","type": "manual"}`
-		response := performRequest(router, "PUT", fmt.Sprintf("/v1/games/%v", firstName),
-			bytes.NewBuffer([]byte(updateBody)))
+		performRequest(router, "POST", "/v1/games", game)
+
+		expected := "{\"error\":\"name cannot be different\"}"
+
+		updatedGame := nightfury.Game{Name: "updated-name", Title: "", Instruction: "new-instruction", Type: "manual", Mode: "", Metadata: nil}
+		response := performRequest(router, "PUT", fmt.Sprintf("/v1/games/%v", name), updatedGame)
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
-		assert.Equal(t, expectedResponse, response.Body.String())
+		assert.Equal(t, expected, response.Body.String())
 	})
 }

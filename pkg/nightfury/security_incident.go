@@ -11,10 +11,10 @@ var securityIncidentBucketName = "securityIncidents"
 
 // SecurityIncident represents the security incident
 type SecurityIncident struct {
-	Title    string   `binding:"required"`
-	Tag      []string `binding:"required"`
-	Content  string   `binding:"required"`
-	Takeaway string   `binding:"required"`
+	Title    string   `json:"title" binding:"required"`
+	Tag      []string `json:"tag"  binding:"required"`
+	Content  string   `json:"content" binding:"required"`
+	Takeaway string   `json:"takeaway" binding:"required"`
 }
 
 // SecurityIncidents represents collection of games

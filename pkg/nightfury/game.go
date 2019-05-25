@@ -10,12 +10,12 @@ var gamesBucketName = "games"
 
 // Game represents the game
 type Game struct {
-	Name        string `binding:"required"`
-	Title       string
-	Instruction string `binding:"required"`
-	Type        string `binding:"required"`
-	Mode        string
-	Metadata    map[string]interface{}
+	Name        string                 `json:"name" binding:"required"`
+	Title       string                 `json:"title"`
+	Instruction string                 `json:"instruction" binding:"required"`
+	Type        string                 `json:"type" binding:"required"`
+	Mode        string                 `json:"mode"`
+	Metadata    map[string]interface{} `json:"metadata"`
 }
 
 // Games represents collection of games

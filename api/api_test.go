@@ -1,12 +1,13 @@
 package api_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/boothgames/nightfury/api"
 	"github.com/boothgames/nightfury/pkg/db"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -27,8 +28,9 @@ func teardownTestContext(t *testing.T) {
 	_ = os.RemoveAll(testDBFileName)
 }
 
-func performRequest(r http.Handler, method, path string, body io.Reader) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, body)
+func performRequest(r http.Handler, method, path string, v interface{}) *httptest.ResponseRecorder {
+	data, _ := json.Marshal(v)
+	req, _ := http.NewRequest(method, path, bytes.NewBuffer(data))
 	responseWriter := httptest.NewRecorder()
 	r.ServeHTTP(responseWriter, req)
 	return responseWriter

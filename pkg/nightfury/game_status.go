@@ -29,8 +29,8 @@ const (
 
 // GameStatus represents the game current status
 type GameStatus struct {
-	Name   string
-	Status Status
+	Name   string `json:"name"`
+	Status Status `json:"status"`
 }
 
 // Failed mark the status as failed
