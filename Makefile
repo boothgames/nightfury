@@ -6,7 +6,6 @@ APP=nightfury
 SRC_PACKAGES=$(shell go list ./... | grep -v "vendor")
 VERSION?=1.0
 BUILD?=$(shell git describe --always --dirty 2> /dev/null)
-DEP:=$(shell command -v dep 2> /dev/null)
 GOLINT:=$(shell command -v golint 2> /dev/null)
 APP_EXECUTABLE="./out/$(APP)"
 RICHGO=$(shell command -v richgo 2> /dev/null)
@@ -14,6 +13,7 @@ GOMETA_LINT=$(shell command -v golangci-lint 2> /dev/null)
 GOLANGCI_LINT_VERSION=v1.12.5
 SHELL=bash -o pipefail
 BUILD_ARGS="-s -w -X github.com/boothgames/nightfury/cmd.version=$(VERSION)-$(BUILD)"
+GO111MODULE=on
 
 ifeq ($(GOMETA_LINT),)
 	GOMETA_LINT=$(shell command -v $(PWD)/bin/golangci-lint 2> /dev/null)
@@ -41,7 +41,12 @@ ensure-build-dir:
 	mkdir -p out
 
 build-deps: ## Install dependencies
-	dep ensure -v
+	go get
+	go mod tidy
+	go mod vendor
+
+update-deps: ## Update dependencies
+	go get -u
 
 compile: compile-app  ## Compile nightfury
 
@@ -50,7 +55,6 @@ run: compile  ## run nightfury with default arguments
 
 compile-app: ensure-build-dir
 	$(GO_BINARY) build -ldflags $(BUILD_ARGS) -o $(APP_EXECUTABLE) ./main.go
-
 
 install: ## Install nightfury
 	go install -ldflags $(BUILD_ARGS)
@@ -79,17 +83,12 @@ ifeq ($(GOLINT),)
 	$(GO_BINARY) get -u golang.org/x/lint/golint
 endif
 
-setup-dep:
-ifeq ($(DEP),)
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-endif
-
 setup-richgo:
 ifeq ($(RICHGO),)
 	$(GO_BINARY) get -u github.com/kyoh86/richgo
 endif
 
-setup: setup-dep setup-richgo setup-common ensure-build-dir ## Setup environment
+setup: setup-richgo setup-common ensure-build-dir ## Setup environment
 
 lint-all: lint setup-common
 	$(GOMETA_LINT) run
