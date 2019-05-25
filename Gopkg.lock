@@ -119,14 +119,6 @@
   version = "v1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:94689c9cc8d532a799246cc8c0b676ce03459452e9fdf9b499ae40a8bd4f6e38"
-  name = "github.com/jskswamy/herman"
-  packages = ["cmd/cli"]
-  pruneopts = "UT"
-  revision = "a56677fd176d1462c31c1b7f24eff93c5019c4f6"
-
-[[projects]]
   digest = "1:f5a2051c55d05548d2d4fd23d244027b59fbd943217df8aa3b5e170ac2fd6e1b"
   name = "github.com/json-iterator/go"
   packages = ["."]
@@ -291,20 +283,9 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
-  name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
-  pruneopts = "UT"
-  revision = "88737f569e3a9c7ab309cdc09a07fe7fc87233c3"
-
-[[projects]]
-  branch = "master"
-  digest = "1:788df6ab16e3b77c72cc916185de590254d2498027337005e0ed3e2c1f10ff7b"
+  digest = "1:3e01c69b34e7c3fa4b7a118ca95a6beaecea00f7f4fb701545d83eacd3badb3c"
   name = "golang.org/x/sys"
-  packages = [
-    "unix",
-    "windows",
-  ]
+  packages = ["unix"]
   pruneopts = "UT"
   revision = "3fd5a3612ccd7907f26270fa92579a0f2f76f734"
 
@@ -352,10 +333,10 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Sirupsen/logrus",
+    "github.com/fatih/color",
     "github.com/gin-gonic/gin",
     "github.com/golang/mock/gomock",
     "github.com/google/go-cmp/cmp",
-    "github.com/jskswamy/herman/cmd/cli",
     "github.com/mitchellh/go-homedir",
     "github.com/mitchellh/mapstructure",
     "github.com/spf13/cobra",
