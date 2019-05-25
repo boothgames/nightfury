@@ -3,12 +3,12 @@ package nightfury_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/boothgames/nightfury/pkg/db"
+	mocks "github.com/boothgames/nightfury/pkg/internal/mocks/db"
+	"github.com/boothgames/nightfury/pkg/nightfury"
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/jskswamy/nightfury/pkg/db"
-	mocks "gitlab.com/jskswamy/nightfury/pkg/internal/mocks/db"
-	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"testing"
 )
 

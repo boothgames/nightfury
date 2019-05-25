@@ -2,9 +2,9 @@ package db_test
 
 import (
 	"encoding/json"
+	"github.com/boothgames/nightfury/pkg/db"
 	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/jskswamy/nightfury/pkg/db"
 	"io/ioutil"
 	"os"
 	"path"

@@ -13,7 +13,7 @@ RICHGO=$(shell command -v richgo 2> /dev/null)
 GOMETA_LINT=$(shell command -v golangci-lint 2> /dev/null)
 GOLANGCI_LINT_VERSION=v1.12.5
 SHELL=bash -o pipefail
-BUILD_ARGS="-s -w -X gitlab.com/jskswamy/nightfury/cmd.version=$(VERSION)-$(BUILD)"
+BUILD_ARGS="-s -w -X github.com/boothgames/nightfury/cmd.version=$(VERSION)-$(BUILD)"
 
 ifeq ($(GOMETA_LINT),)
 	GOMETA_LINT=$(shell command -v $(PWD)/bin/golangci-lint 2> /dev/null)

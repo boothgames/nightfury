@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/boothgames/nightfury/pkg/db"
+	"github.com/boothgames/nightfury/pkg/nightfury"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/jskswamy/nightfury/pkg/db"
-	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
 	"net/http"
 )
 

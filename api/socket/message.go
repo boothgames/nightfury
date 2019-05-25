@@ -1,6 +1,6 @@
 package socket
 
-import "gitlab.com/jskswamy/nightfury/pkg/db"
+import "github.com/boothgames/nightfury/pkg/db"
 
 // Message represents message sent across ws
 type Message struct {

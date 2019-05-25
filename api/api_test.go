@@ -2,10 +2,10 @@ package api_test
 
 import (
 	"fmt"
+	"github.com/boothgames/nightfury/api"
+	"github.com/boothgames/nightfury/pkg/db"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"gitlab.com/jskswamy/nightfury/api"
-	"gitlab.com/jskswamy/nightfury/pkg/db"
 	"io"
 	"net/http"
 	"net/http/httptest"

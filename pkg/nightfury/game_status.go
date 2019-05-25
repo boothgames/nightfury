@@ -2,7 +2,7 @@ package nightfury
 
 import (
 	"fmt"
-	"gitlab.com/jskswamy/nightfury/pkg/db"
+	"github.com/boothgames/nightfury/pkg/db"
 )
 
 // Status represents different game status

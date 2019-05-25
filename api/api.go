@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/boothgames/nightfury/api/socket"
+	"github.com/boothgames/nightfury/log"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/jskswamy/nightfury/api/socket"
-	"gitlab.com/jskswamy/nightfury/log"
 )
 
 func init() {

@@ -3,8 +3,8 @@ package socket
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.com/jskswamy/nightfury/log"
-	"gitlab.com/jskswamy/nightfury/pkg/nightfury"
+	"github.com/boothgames/nightfury/log"
+	"github.com/boothgames/nightfury/pkg/nightfury"
 	"gopkg.in/olahol/melody.v1"
 	"sync"
 )

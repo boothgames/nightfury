@@ -3,7 +3,7 @@ package nightfury
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.com/jskswamy/nightfury/pkg/db"
+	"github.com/boothgames/nightfury/pkg/db"
 )
 
 var gamesBucketName = "games"

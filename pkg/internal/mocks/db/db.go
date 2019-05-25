@@ -5,8 +5,8 @@
 package mocks
 
 import (
+	db "github.com/boothgames/nightfury/pkg/db"
 	gomock "github.com/golang/mock/gomock"
-	db "gitlab.com/jskswamy/nightfury/pkg/db"
 	reflect "reflect"
 )
 
