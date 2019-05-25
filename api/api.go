@@ -20,18 +20,19 @@ func Bind(engine *gin.Engine) {
 	v1 := engine.Group("/v1")
 	{
 		v1.POST("/bulk/games", uploadGames)
-		v1.POST("/bulk/security-incidents", uploadSecurityIncidents)
+		v1.POST("/bulk/hints", uploadHints)
+
 		v1.GET("/games", listGames)
 		v1.POST("/games", createGame)
 		v1.GET("/games/:id", populateGame, readGame)
 		v1.PUT("/games/:id", populateGame, updateGame)
 		v1.DELETE("/games/:id", populateGame, deleteGame)
 
-		v1.GET("/security-incidents", listSecurityIncidents)
-		v1.POST("/security-incidents", createSecurityIncident)
-		v1.GET("/security-incidents/:id", populateSecurityIncident, readSecurityIncident)
-		v1.PUT("/security-incidents/:id", populateSecurityIncident, updateSecurityIncident)
-		v1.DELETE("/security-incidents/:id", populateSecurityIncident, deleteSecurityIncident)
+		v1.GET("/hints", listHints)
+		v1.POST("/hints", createHint)
+		v1.GET("/hints/:id", populateHint, readHint)
+		v1.PUT("/hints/:id", populateHint, updateHint)
+		v1.DELETE("/hints/:id", populateHint, deleteHint)
 
 		v1.GET("/clients", listClients)
 	}

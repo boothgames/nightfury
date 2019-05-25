@@ -81,7 +81,7 @@ func TestGameDeleteFailure(t *testing.T) {
 	router := setupTestContext()
 	defer teardownTestContext(t)
 
-	t.Run("delete security incident should fail when name does'nt exist in db", func(t *testing.T) {
+	t.Run("delete hint should fail when name does'nt exist in db", func(t *testing.T) {
 		gameName := "random"
 		expected := fmt.Sprintf("{\"error\":\"game with name %v doesn't exists\"}", gameName)
 
@@ -106,7 +106,7 @@ func TestGameUpdateFailure(t *testing.T) {
 		assert.Equal(t, expected, response.Body.String())
 	})
 
-	t.Run("update security incident should fail if title is changed", func(t *testing.T) {
+	t.Run("update hint should fail if title is changed", func(t *testing.T) {
 
 		name := "first"
 		game := nightfury.Game{Name: name, Title: "", Instruction: "new-instruction", Type: "manual", Mode: "", Metadata: nil}

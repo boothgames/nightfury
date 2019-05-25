@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-// Game assert expected nightfury.SecurityIncident is the body of httptest.ResponseRecorder
+// Game assert expected nightfury.Hint is the body of httptest.ResponseRecorder
 func Game(t *testing.T, expected nightfury.Game, response *httptest.ResponseRecorder) {
 	actual := nightfury.Game{}
 	err := json.Unmarshal(response.Body.Bytes(), &actual)
@@ -23,7 +23,7 @@ func Game(t *testing.T, expected nightfury.Game, response *httptest.ResponseReco
 	}
 }
 
-// Games assert expected nightfury.SecurityIncident is the body of httptest.ResponseRecorder
+// Games assert expected nightfury.Hint is the body of httptest.ResponseRecorder
 func Games(t *testing.T, expected nightfury.Games, response *httptest.ResponseRecorder) {
 	actual := nightfury.Games{}
 	err := json.Unmarshal(response.Body.Bytes(), &actual)
