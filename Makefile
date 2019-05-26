@@ -43,7 +43,6 @@ ensure-build-dir:
 build-deps: ## Install dependencies
 	go get
 	go mod tidy
-	go mod vendor
 
 update-deps: ## Update dependencies
 	go get -u

@@ -24,6 +24,7 @@
 
 out/
 bin/
+vendor/
 .talismanrc
 .idea/
 
