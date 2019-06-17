@@ -37,7 +37,7 @@ func NewHintsFromRepo(repo db.Repository) (interface{}, error) {
 // NewHintFromRepoWithName return all the client from db
 func NewHintFromRepoWithName(repo db.Repository, name string) (Hint, error) {
 	hint := Hint{}
-	ok, err := repo.Fetch(hintBucketName, name, &hint)
+	ok, err := repo.Fetch(hintBucketName, Slug(name), &hint)
 	if err == nil {
 		if ok {
 			return hint, nil
@@ -49,24 +49,24 @@ func NewHintFromRepoWithName(repo db.Repository, name string) (Hint, error) {
 }
 
 // ID returns the identifiable name for client
-func (si Hint) ID() string {
-	return strings.Replace(si.Title, " ", "-", -1)
+func (hint Hint) ID() string {
+	return Slug(hint.Title)
 }
 
 // Save saves the client information to db
-func (si Hint) Save(repo db.Repository) error {
-	return repo.Save(hintBucketName, si)
+func (hint Hint) Save(repo db.Repository) error {
+	return repo.Save(hintBucketName, hint)
 }
 
 // Delete deletes the client information to db
-func (si Hint) Delete(repo db.Repository) error {
-	return repo.Delete(hintBucketName, si)
+func (hint Hint) Delete(repo db.Repository) error {
+	return repo.Delete(hintBucketName, hint)
 }
 
 // DetectChangeInTitle will return error if title changes during update
-func (si Hint) DetectChangeInTitle(incidentToBeUpdated Hint) error {
-	if si.Title != convertHyphenToSpaces(incidentToBeUpdated.Title) {
-		return fmt.Errorf("title '%v' cannot be different", si.Title)
+func (hint Hint) DetectChangeInTitle(incidentToBeUpdated Hint) error {
+	if hint.Title != convertHyphenToSpaces(incidentToBeUpdated.Title) {
+		return fmt.Errorf("title '%v' cannot be different", hint.Title)
 	}
 	return nil
 }

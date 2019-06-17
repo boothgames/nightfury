@@ -24,7 +24,7 @@ type Games map[string]Game
 // NewGameFromRepoWithName return all the client from db
 func NewGameFromRepoWithName(repo db.Repository, name string) (Game, error) {
 	game := Game{}
-	ok, err := repo.Fetch(gamesBucketName, name, &game)
+	ok, err := repo.Fetch(gamesBucketName, Slug(name), &game)
 	if err == nil {
 		if ok {
 			return game, nil
@@ -45,7 +45,7 @@ func NewGamesFromRepo(repo db.Repository) (interface{}, error) {
 
 // ID returns the identifiable name for client
 func (g Game) ID() string {
-	return g.Name
+	return Slug(g.Name)
 }
 
 // Save saves the client information to db

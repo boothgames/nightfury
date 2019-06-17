@@ -12,6 +12,21 @@ import (
 	"testing"
 )
 
+func TestHintID(t *testing.T) {
+	t.Run("should return the id", func(t *testing.T) {
+		hint := nightfury.Hint{
+			Title:    "sample hInT",
+			Content:  "content",
+			Tag:      []string{"web"},
+			Takeaway: "dont do this",
+		}
+
+		actual := hint.ID()
+
+		assert.Equal(t, "sample-hint", actual)
+	})
+}
+
 func TestHintSave(t *testing.T) {
 	t.Run("should be able to save hint", func(t *testing.T) {
 		ctrl := gomock.NewController(t)

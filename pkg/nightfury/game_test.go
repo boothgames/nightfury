@@ -12,6 +12,18 @@ import (
 	"testing"
 )
 
+func TestGameID(t *testing.T) {
+	t.Run("should return the id", func(t *testing.T) {
+		game := nightfury.Game{
+			Name: "Sample_gAme",
+		}
+
+		actual := game.ID()
+
+		assert.Equal(t, "sample-game", actual)
+	})
+}
+
 func TestGameSave(t *testing.T) {
 	t.Run("should be able to save game", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
