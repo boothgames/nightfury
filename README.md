@@ -42,13 +42,9 @@ Create a json file with the game info as save it as `games.json`
     "type": "mobile",
     "mode": "external",
     "metadata": {
-      "codes": [
-        1234,
-        5678,
-        0987,
-      ]
+      "codes": ["1234", "5678", "0987"]
     }
-  },
+  }
 ]
 ```
 
@@ -67,9 +63,7 @@ Create a json file with the hints and save it as `hints.json`
 [
   {
     "title": "hint title",
-    "tag": [
-      "tag-1", "tag-2"
-    ],
+    "tag": ["tag-1", "tag-2"],
     "content": "hint content",
     "takeaway": "hint takeaway"
   }
