@@ -17,6 +17,12 @@ $ ./out/nightfury server
 
 ### Games
 
+There is support for `web` and `non-web` games.
+The web games are assumed to be embedded in the browser, so it is easy to determine if the level has been solved.
+For the non-web games, some external factor is needed to determine whether the game is completed; currently we load all the random codes possible.
+
+#### To load data:
+
 Create a json file with the game info as save it as `games.json`
 
 ```json
@@ -57,6 +63,10 @@ $ curl -H "Content-Type: application/json" --data @games.json http://localhost:5
 
 ### Hints
 
+After completing each level, a hint is shown to the user.
+
+#### To load data:
+
 Create a json file with the hints and save it as `hints.json`
 
 ```json
@@ -76,6 +86,11 @@ Upload the hints to nightfury
 $ curl -H "Content-Type: application/json" --data @hints.json http://localhost:5624/v1/bulk/hints
 
 ```
+
+### Clear data
+
+The data is stored in an embedded key/value database [boltdb](https://github.com/boltdb/bolt).
+To clear the previously loaded data, delete the `nightfury.db` file.
 
 ### Contributions
 
