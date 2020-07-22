@@ -1,6 +1,6 @@
 module github.com/boothgames/nightfury
 
-go 1.12
+go 1.14
 
 replace github.com/ugorji/go => github.com/ugorji/go/codec v1.1.7
 
@@ -9,7 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/golang/mock v1.3.1
 	github.com/google/go-cmp v0.3.1
-	github.com/mattn/go-colorable v0.1.4 // indirect
+	github.com/influxdata/influxdb-client-go v1.4.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/sirupsen/logrus v1.4.2

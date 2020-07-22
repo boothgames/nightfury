@@ -17,7 +17,7 @@ func TestGameStatusFailed(t *testing.T) {
 	failedGameStatusScenarios := []gameStatusScenario{
 		{
 			name:           "should be able to fail a in-progress game",
-			status:         InProgress,
+			status:         Started,
 			expectedStatus: Failed,
 		},
 		{
@@ -25,21 +25,21 @@ func TestGameStatusFailed(t *testing.T) {
 			status:         Ready,
 			expectedStatus: Ready,
 			isError:        true,
-			errMsg:         "cannot fail from a Ready game",
+			errMsg:         "cannot fail from a ready game",
 		},
 		{
 			name:           "should not fail a failed game",
 			status:         Failed,
 			expectedStatus: Failed,
 			isError:        true,
-			errMsg:         "cannot fail from a Failed game",
+			errMsg:         "cannot fail from a failed game",
 		},
 		{
 			name:           "should not fail a completed game",
 			status:         Completed,
 			expectedStatus: Completed,
 			isError:        true,
-			errMsg:         "cannot fail from a Completed game",
+			errMsg:         "cannot fail from a completed game",
 		},
 	}
 
@@ -64,7 +64,7 @@ func TestGameStatusCompleted(t *testing.T) {
 	completedGameStatusScenarios := []gameStatusScenario{
 		{
 			name:           "should be able to progress a in-progress game",
-			status:         InProgress,
+			status:         Started,
 			expectedStatus: Completed,
 		},
 		{
@@ -72,21 +72,21 @@ func TestGameStatusCompleted(t *testing.T) {
 			status:         Ready,
 			expectedStatus: Ready,
 			isError:        true,
-			errMsg:         "cannot complete from a Ready game",
+			errMsg:         "cannot complete from a ready game",
 		},
 		{
 			name:           "should not complete a failed game",
 			status:         Failed,
 			expectedStatus: Failed,
 			isError:        true,
-			errMsg:         "cannot complete from a Failed game",
+			errMsg:         "cannot complete from a failed game",
 		},
 		{
 			name:           "should not complete a completed game",
 			status:         Completed,
 			expectedStatus: Completed,
 			isError:        true,
-			errMsg:         "cannot complete from a Completed game",
+			errMsg:         "cannot complete from a completed game",
 		},
 	}
 
@@ -111,27 +111,27 @@ func TestGameStatusInProgress(t *testing.T) {
 	inProgressGameStatusScenarios := []gameStatusScenario{
 		{
 			name:           "should be able to progress a in-progress game",
-			status:         InProgress,
-			expectedStatus: InProgress,
+			status:         Started,
+			expectedStatus: Started,
 		},
 		{
 			name:           "should progress a ready game",
 			status:         Ready,
-			expectedStatus: InProgress,
+			expectedStatus: Started,
 		},
 		{
 			name:           "should not progress a failed game",
 			status:         Failed,
 			expectedStatus: Failed,
 			isError:        true,
-			errMsg:         "cannot progress from a Failed game",
+			errMsg:         "cannot progress from a failed game",
 		},
 		{
 			name:           "should not progress a completed game",
 			status:         Completed,
 			expectedStatus: Completed,
 			isError:        true,
-			errMsg:         "cannot progress from a Completed game",
+			errMsg:         "cannot progress from a completed game",
 		},
 	}
 

@@ -35,7 +35,7 @@ func TestClientAdd(t *testing.T) {
 		client := nightfury.NewClient(
 			"test",
 			false,
-			nightfury.GameStatus{Name: "tic-tac-toe", Status: nightfury.InProgress},
+			nightfury.GameStatus{Name: "tic-tac-toe", Status: nightfury.Started},
 		)
 		game := nightfury.Game{
 			Name:        "tic-tac-toe",
@@ -59,7 +59,7 @@ func TestClientRemove(t *testing.T) {
 		client := nightfury.NewClient(
 			"test",
 			false,
-			nightfury.GameStatus{Name: "tic-tac-toe", Status: nightfury.InProgress},
+			nightfury.GameStatus{Name: "tic-tac-toe", Status: nightfury.Started},
 		)
 		expected := nightfury.Client{
 			Name:         "test",
@@ -289,37 +289,37 @@ func TestClientStatus(t *testing.T) {
 			status: nightfury.Failed,
 		},
 		{
-			name: "should return InProgress as status when other games are ready",
+			name: "should return Started as status when other games are ready",
 			client: nightfury.Client{
 				GameStatuses: nightfury.GameStatuses{
-					"tic-tac-toe":      {Status: nightfury.InProgress},
+					"tic-tac-toe":      {Status: nightfury.Started},
 					"ludo":             {Status: nightfury.Ready},
 					"snake-and-ladder": {Status: nightfury.Ready},
 				},
 			},
-			status: nightfury.InProgress,
+			status: nightfury.Started,
 		},
 		{
-			name: "should return InProgress as status when other games are ready/completed",
+			name: "should return Started as status when other games are ready/completed",
 			client: nightfury.Client{
 				GameStatuses: nightfury.GameStatuses{
 					"tic-tac-toe":      {Status: nightfury.Completed},
-					"ludo":             {Status: nightfury.InProgress},
+					"ludo":             {Status: nightfury.Started},
 					"snake-and-ladder": {Status: nightfury.Ready},
 				},
 			},
-			status: nightfury.InProgress,
+			status: nightfury.Started,
 		},
 		{
-			name: "should return InProgress as status when other games are completed",
+			name: "should return Started as status when other games are completed",
 			client: nightfury.Client{
 				GameStatuses: nightfury.GameStatuses{
 					"tic-tac-toe":      {Status: nightfury.Completed},
 					"ludo":             {Status: nightfury.Completed},
-					"snake-and-ladder": {Status: nightfury.InProgress},
+					"snake-and-ladder": {Status: nightfury.Started},
 				},
 			},
-			status: nightfury.InProgress,
+			status: nightfury.Started,
 		},
 	}
 
@@ -367,7 +367,7 @@ func TestClientStart(t *testing.T) {
 	t.Run("should not start client", func(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
-				"tic-tac-toe":      {Status: nightfury.InProgress},
+				"tic-tac-toe":      {Status: nightfury.Started},
 				"ludo":             {Status: nightfury.Ready},
 				"snake-and-ladder": {Status: nightfury.Ready},
 			},
@@ -425,7 +425,7 @@ func TestClientNext(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
 				"tic-tac-toe":      {Status: nightfury.Completed},
-				"ludo":             {Status: nightfury.InProgress},
+				"ludo":             {Status: nightfury.Started},
 				"snake-and-ladder": {Status: nightfury.Ready},
 			},
 		}
@@ -496,7 +496,7 @@ func TestClientNext(t *testing.T) {
 	t.Run("should not return the next game if game is in progress", func(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
-				"tic-tac-toe":      {Status: nightfury.InProgress},
+				"tic-tac-toe":      {Status: nightfury.Started},
 				"ludo":             {Status: nightfury.Ready},
 				"snake-and-ladder": {Status: nightfury.Ready},
 			},
@@ -594,7 +594,7 @@ func TestClientHasNext(t *testing.T) {
 	t.Run("should not return the next game if game is in progress", func(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
-				"tic-tac-toe":      {Status: nightfury.InProgress},
+				"tic-tac-toe":      {Status: nightfury.Started},
 				"ludo":             {Status: nightfury.Ready},
 				"snake-and-ladder": {Status: nightfury.Ready},
 			},
@@ -643,7 +643,7 @@ func TestClientFailGame(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
 				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
-				"ludo":             {Name: "ludo", Status: nightfury.InProgress},
+				"ludo":             {Name: "ludo", Status: nightfury.Started},
 				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
 			},
 		}
@@ -674,7 +674,7 @@ func TestClientFailGame(t *testing.T) {
 
 		err := client.FailGame(game)
 		assert.Error(t, err)
-		assert.Equal(t, "cannot fail from a Completed game", err.Error())
+		assert.Equal(t, "cannot fail from a completed game", err.Error())
 	})
 
 	t.Run("should not fail when error on save", func(t *testing.T) {
@@ -691,7 +691,7 @@ func TestClientFailGame(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
 				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
-				"ludo":             {Name: "ludo", Status: nightfury.InProgress},
+				"ludo":             {Name: "ludo", Status: nightfury.Started},
 				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
 			},
 		}
@@ -719,7 +719,7 @@ func TestClientCompleteGame(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
 				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
-				"ludo":             {Name: "ludo", Status: nightfury.InProgress},
+				"ludo":             {Name: "ludo", Status: nightfury.Started},
 				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
 			},
 		}
@@ -750,7 +750,7 @@ func TestClientCompleteGame(t *testing.T) {
 
 		err := client.CompleteGame(game)
 		assert.Error(t, err)
-		assert.Equal(t, "cannot complete from a Failed game", err.Error())
+		assert.Equal(t, "cannot complete from a failed game", err.Error())
 	})
 
 	t.Run("should not complete when error on save", func(t *testing.T) {
@@ -767,7 +767,7 @@ func TestClientCompleteGame(t *testing.T) {
 		client := nightfury.Client{
 			GameStatuses: nightfury.GameStatuses{
 				"tic-tac-toe":      {Name: "tic-tac-toe", Status: nightfury.Completed},
-				"ludo":             {Name: "ludo", Status: nightfury.InProgress},
+				"ludo":             {Name: "ludo", Status: nightfury.Started},
 				"snake-and-ladder": {Name: "snake-and-ladder", Status: nightfury.Ready},
 			},
 		}

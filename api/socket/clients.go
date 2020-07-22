@@ -3,12 +3,16 @@ package socket
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/boothgames/nightfury/api/metrics"
 	"github.com/boothgames/nightfury/log"
 	"github.com/boothgames/nightfury/pkg/db"
 	"github.com/boothgames/nightfury/pkg/nightfury"
 	"github.com/gin-gonic/gin"
+	influxdb2 "github.com/influxdata/influxdb-client-go"
+	"github.com/influxdata/influxdb-client-go/api/write"
 	"gopkg.in/olahol/melody.v1"
 	"net/http"
+	"time"
 )
 
 const (
@@ -27,6 +31,21 @@ func HandleClients(c *gin.Context) {
 	}
 }
 
+func clientMetricsPoint(session *melody.Session, clientName, event string) *write.Point {
+	return influxdb2.NewPoint(
+		"clients",
+		map[string]string{
+			"event": event,
+			"name":  clientName,
+		},
+		map[string]interface{}{
+			"ip":     metrics.IPAddressFromRequest(session.Request),
+			"realIP": metrics.RealIPAddressFromRequest(session.Request),
+		},
+		time.Now(),
+	)
+}
+
 func clientConnected(session *melody.Session) {
 	lock.Lock()
 	defer func() {
@@ -40,6 +59,7 @@ func clientConnected(session *melody.Session) {
 		return
 	}
 	connectedClient := client.Connected()
+	metrics.Write(clientMetricsPoint(session, client.Name, "connected"))
 	err = connectedClient.Save(repository)
 	logErr(err)
 	log.Infof("client %v connected", client.Name)
@@ -57,7 +77,9 @@ func clientDisconnected(session *melody.Session) {
 		logErr(err)
 		return
 	}
+
 	connectedClient := client.Disconnected()
+	metrics.Write(clientMetricsPoint(session, connectedClient.Name, "disconnected"))
 	err = connectedClient.Save(repository)
 	logErr(err)
 	log.Infof("client %v disconnected", client.Name)

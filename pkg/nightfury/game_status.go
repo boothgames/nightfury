@@ -10,15 +10,15 @@ type Status int
 
 // String returns the string representation of status
 func (status Status) String() string {
-	return [...]string{"Ready", "InProgress", "Failed", "Completed"}[status]
+	return [...]string{"ready", "started", "failed", "completed"}[status]
 }
 
 const (
 	// Ready represents game is available to play
 	Ready Status = iota
 
-	// InProgress represents game is in progress
-	InProgress
+	// Started represents game is in progress
+	Started
 
 	// Failed represents game has not been successfully completed
 	Failed
@@ -35,7 +35,7 @@ type GameStatus struct {
 
 // Failed mark the status as failed
 func (g GameStatus) Failed() (GameStatus, error) {
-	if g.Status == InProgress {
+	if g.Status == Started {
 		g.Status = Failed
 		return g, nil
 	}
@@ -44,17 +44,17 @@ func (g GameStatus) Failed() (GameStatus, error) {
 
 // Completed mark the status as completed
 func (g GameStatus) Completed() (GameStatus, error) {
-	if g.Status == InProgress {
+	if g.Status == Started {
 		g.Status = Completed
 		return g, nil
 	}
 	return g, fmt.Errorf("cannot complete from a %v game", g.Status)
 }
 
-// InProgress mark the status as progress
+// Started mark the status as progress
 func (g GameStatus) InProgress() (GameStatus, error) {
-	if g.Status == InProgress || g.Status == Ready {
-		g.Status = InProgress
+	if g.Status == Started || g.Status == Ready {
+		g.Status = Started
 		return g, nil
 	}
 	return g, fmt.Errorf("cannot progress from a %v game", g.Status)
@@ -77,7 +77,7 @@ func (statuses GameStatuses) ReadyGame() (Game, error) {
 // IsAnyGameInProgress returns true if any game is in progress
 func (statuses GameStatuses) IsAnyGameInProgress() bool {
 	for _, game := range statuses {
-		if game.Status == InProgress {
+		if game.Status == Started {
 			return true
 		}
 	}

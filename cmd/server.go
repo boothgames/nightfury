@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/boothgames/nightfury/api"
+	"github.com/boothgames/nightfury/api/metrics"
 	"github.com/boothgames/nightfury/cmd/cli"
 	"github.com/boothgames/nightfury/log"
 	"github.com/boothgames/nightfury/pkg/db"
@@ -36,10 +37,13 @@ var serverCmd = &cobra.Command{
 }
 
 var (
-	bindAddress string
-	bindPort    int
-	dbPath      string
-	logLevel    string
+	bindAddress            string
+	bindPort               int
+	dbPath                 string
+	logLevel               string
+	metricsServer          string
+	metricsBucket          string
+	metricsServerAuthToken string
 )
 
 func init() {
@@ -48,6 +52,9 @@ func init() {
 	serverCmd.Flags().IntVarP(&bindPort, "bind-port", "p", 5624, "specify the advertise port to use")
 	serverCmd.Flags().StringVarP(&logLevel, "log-level", "l", "error", "specify the log level (panic, fatal, error, warn, info, debug, trace)")
 	serverCmd.Flags().StringVarP(&dbPath, "db-path", "", "nightfury.db", "specify the database path where db will be stored")
+	serverCmd.Flags().StringVarP(&metricsServer, "metrics-server", "m", "http://localhost:8086", "specify the URI for influx db to store application metrics")
+	serverCmd.Flags().StringVarP(&metricsBucket, "metrics-bucket", "b", "nightfury", "bucket name to be used for storing the metrics information")
+	serverCmd.Flags().StringVarP(&metricsServerAuthToken, "metrics-server-auth-token", "", "", "metrics server auth token")
 }
 
 func releaseMode() string {
@@ -62,6 +69,7 @@ func releaseMode() string {
 func startServer() {
 	address := fmt.Sprintf("%s:%d", bindAddress, bindPort)
 	cli.Info(fmt.Sprintf("starting nightfury at %s", address))
+	cli.Info(fmt.Sprintf("using metrics server at %s with bucket %s", metricsServer, metricsBucket))
 
 	gin.SetMode(releaseMode())
 	router := gin.Default()
@@ -70,9 +78,10 @@ func startServer() {
 	cli.DieIf(err)
 
 	api.Bind(router)
-	srv := &http.Server{Addr: address, Handler: router}
+	err = metrics.Initialize(metricsServer, metricsBucket, metricsServerAuthToken)
+	cli.DieIf(err)
 
-	// service connections
+	srv := &http.Server{Addr: address, Handler: router}
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		cli.DieIf(err)
 	}

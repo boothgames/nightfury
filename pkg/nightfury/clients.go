@@ -108,7 +108,7 @@ func (c Client) Status() Status {
 	if statusCount[Failed] >= 1 {
 		return Failed
 	}
-	return InProgress
+	return Started
 }
 
 // Save saves the client information to db

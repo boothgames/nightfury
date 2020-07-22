@@ -3,12 +3,16 @@ package socket
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/boothgames/nightfury/api/metrics"
 	"github.com/boothgames/nightfury/log"
 	"github.com/boothgames/nightfury/pkg/db"
 	"github.com/boothgames/nightfury/pkg/nightfury"
 	"github.com/gin-gonic/gin"
+	influxdb2 "github.com/influxdata/influxdb-client-go"
+	"github.com/influxdata/influxdb-client-go/api/write"
 	"gopkg.in/olahol/melody.v1"
 	"net/http"
+	"time"
 )
 
 const (
@@ -28,6 +32,23 @@ func HandleGames(c *gin.Context) {
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
+}
+
+func gameMetricsPoint(session *melody.Session, clientName, game, event string) *write.Point {
+	return influxdb2.NewPoint(
+		"games",
+		map[string]string{
+			"source": "game",
+			"event":  event,
+			"client": clientName,
+			"game":   game,
+		},
+		map[string]interface{}{
+			"ip":     metrics.IPAddressFromRequest(session.Request),
+			"realIP": metrics.RealIPAddressFromRequest(session.Request),
+		},
+		time.Now(),
+	)
 }
 
 func gameConnected(session *melody.Session) {
@@ -57,6 +78,7 @@ func gameConnected(session *melody.Session) {
 		logErr(err)
 		return
 	}
+	metrics.Write(gameMetricsPoint(session, client.Name, game.Name, "connected"))
 	client.Add(*game)
 	err = client.Save(repository)
 	logErr(err)
@@ -82,6 +104,7 @@ func gameDisconnected(session *melody.Session) {
 		logErr(err)
 		return
 	}
+	metrics.Write(gameMetricsPoint(session, client.Name, game.Name, "disconnected"))
 	client.Remove(*game)
 	err = client.Save(repository)
 	logErr(err)
@@ -115,6 +138,7 @@ func gameMessageReceived(session *melody.Session, data []byte) {
 		logErr(err)
 		return
 	}
+	metrics.Write(gameMetricsPoint(session, client.Name, game.Name, message.Action))
 	processGameMessage(*client, *game, message)
 }
 
